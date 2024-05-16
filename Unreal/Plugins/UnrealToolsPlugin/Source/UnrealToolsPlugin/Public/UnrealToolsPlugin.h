@@ -17,3 +17,5 @@ public:
 DEFINE_LOG_CATEGORY_STATIC(FilesHandler, Log, All);
 
 DEFINE_LOG_CATEGORY_STATIC(DisplayLibrary, Log, All);
+
+DEFINE_LOG_CATEGORY_STATIC(ConstructionScriptTools, Log, All);
