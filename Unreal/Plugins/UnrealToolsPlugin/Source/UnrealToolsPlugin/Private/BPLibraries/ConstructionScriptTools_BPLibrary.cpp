@@ -34,3 +34,5 @@ void UConstructionScriptToolsBPLibrary::RerunAllClassActorsConstructionScript(co
 		RerunConstructionScript(actor);
 	}
 }
+
+

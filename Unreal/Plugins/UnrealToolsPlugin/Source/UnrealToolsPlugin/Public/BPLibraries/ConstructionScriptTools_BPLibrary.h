@@ -12,11 +12,10 @@ class UConstructionScriptToolsBPLibrary : public UBlueprintFunctionLibrary
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "Constructiuon Script Tools")
+	UFUNCTION(BlueprintCallable, Category = "Construction Script Tools")
 	static void RerunConstructionScript(AActor* objectToConstruct);
 
-	UFUNCTION(BlueprintCallable, Category = "Constructiuon Script Tools")
+	UFUNCTION(BlueprintCallable, Category = "Construction Script Tools")
 	static void RerunAllClassActorsConstructionScript(const AActor* thisActor);
-
 
 };
