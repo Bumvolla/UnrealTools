@@ -21,3 +21,5 @@ DEFINE_LOG_CATEGORY_STATIC(DisplayLibrary, Log, All);
 DEFINE_LOG_CATEGORY_STATIC(ConstructionScriptTools, Log, All);
 
 DEFINE_LOG_CATEGORY_STATIC(Mathfs, Log, All);
+
+DEFINE_LOG_CATEGORY_STATIC(Catenary3D, Log, All);

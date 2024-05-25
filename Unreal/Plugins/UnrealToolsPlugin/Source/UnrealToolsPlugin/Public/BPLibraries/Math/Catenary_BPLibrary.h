@@ -43,16 +43,14 @@ public:
 
 };
 
-//UCLASS()
-//class UCatenary3D : public UCatenary
-//{
-//	GENERATED_UCLASS_BODY()
-//
-//public:
-//
-//	FVector p1;
-//	FCatenaryToPoint cat2D; // also stores arc length
-//	FPlane2DIn3D space; // stores p0 and slack direction
-//	EEvaluability evaluability;
-//
-//};
+UCLASS()
+class UCatenary3D : public UCatenary
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Catenary3D")
+	static TArray<FVector> CreateCatenarySplinePoints(FVector startPoint, FVector endPoint,float Slack, int m_steps = 10);
+
+};
