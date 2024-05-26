@@ -33,3 +33,13 @@ void PrintToNotification(const FString& Message,const float duration = 7.f)
 
 	FSlateNotificationManager::Get().AddNotification(NotifInfo);
 }
+
+UENUM(BlueprintType)
+enum CustomLoggerClases 
+{
+	Mathfs,
+	ConstructionScriptTools,
+	Catenary,
+	DisplayLibrary,
+	FilesHandler
+};
