@@ -1,4 +1,4 @@
-#include "BPLibraries/Mathfs_BPLibrary.h"
+#include "BPLibraries/Math/Mathfs_BPLibrary.h"
 #include "UnrealToolsPlugin.h"
 
 UMathfsBPLibrary::UMathfsBPLibrary(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)

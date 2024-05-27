@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "BPLibraries/Mathfs_BPLibrary.h"
+#include "BPLibraries/Math/Mathfs_BPLibrary.h"
 #include "Catenary_BPLibrary.generated.h"
 
 UENUM()
@@ -38,8 +38,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Catenary")
 	static FVector2D EvalDerivByArcLength(const float s, const float a, const int n = 1);
 
-	//UFUNCTION(BlueprintCallable, Category = "CatenaryToPoint")
-	//static FVector2D EvalStraightLineByArcLength(float sEval, FCatenaryToPoint CatenaryValues);
 
 };
 
