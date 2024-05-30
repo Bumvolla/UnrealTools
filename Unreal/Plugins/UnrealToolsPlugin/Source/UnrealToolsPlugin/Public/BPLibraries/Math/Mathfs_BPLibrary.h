@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Structs/CatenaryToPoint.h"
-#include "Structs/Plane2DIn3D.h"
 #include "Mathfs_BPLibrary.generated.h"
 
 UCLASS()
