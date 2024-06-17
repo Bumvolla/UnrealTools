@@ -1,0 +1,127 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+/*===========================================================================
+	Generated code exported from UnrealHeaderTool.
+	DO NOT modify this manually! Edit the corresponding .h files instead!
+===========================================================================*/
+
+// IWYU pragma: private, include "BPLibraries/Math/Catenary_BPLibrary.h"
+#include "UObject/ObjectMacros.h"
+#include "UObject/ScriptMacros.h"
+
+PRAGMA_DISABLE_DEPRECATION_WARNINGS
+#ifdef UNREALTOOLSPLUGIN_Catenary_BPLibrary_generated_h
+#error "Catenary_BPLibrary.generated.h already included, missing '#pragma once' in Catenary_BPLibrary.h"
+#endif
+#define UNREALTOOLSPLUGIN_Catenary_BPLibrary_generated_h
+
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_SPARSE_DATA
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_SPARSE_DATA_PROPERTY_ACCESSORS
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_EDITOR_ONLY_SPARSE_DATA_PROPERTY_ACCESSORS
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_RPC_WRAPPERS \
+ \
+	DECLARE_FUNCTION(execEvalDerivByArcLength); \
+	DECLARE_FUNCTION(execEvalXByArcLength); \
+	DECLARE_FUNCTION(execEvalArcLength); \
+	DECLARE_FUNCTION(execEval);
+
+
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_ACCESSORS
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_INCLASS \
+private: \
+	static void StaticRegisterNativesUCatenary(); \
+	friend struct Z_Construct_UClass_UCatenary_Statics; \
+public: \
+	DECLARE_CLASS(UCatenary, UMathfsBPLibrary, COMPILED_IN_FLAGS(0), CASTCLASS_None, TEXT("/Script/UnrealToolsPlugin"), NO_API) \
+	DECLARE_SERIALIZER(UCatenary)
+
+
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_STANDARD_CONSTRUCTORS \
+	/** Standard constructor, called after all reflected properties have been initialized */ \
+	NO_API UCatenary(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
+	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UCatenary) \
+	DECLARE_VTABLE_PTR_HELPER_CTOR(NO_API, UCatenary); \
+	DEFINE_VTABLE_PTR_HELPER_CTOR_CALLER(UCatenary); \
+private: \
+	/** Private move- and copy-constructors, should never be used */ \
+	NO_API UCatenary(UCatenary&&); \
+	NO_API UCatenary(const UCatenary&); \
+public: \
+	NO_API virtual ~UCatenary();
+
+
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_15_PROLOG
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_GENERATED_BODY_LEGACY \
+PRAGMA_DISABLE_DEPRECATION_WARNINGS \
+public: \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_SPARSE_DATA \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_SPARSE_DATA_PROPERTY_ACCESSORS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_EDITOR_ONLY_SPARSE_DATA_PROPERTY_ACCESSORS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_RPC_WRAPPERS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_ACCESSORS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_INCLASS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_19_STANDARD_CONSTRUCTORS \
+public: \
+PRAGMA_ENABLE_DEPRECATION_WARNINGS
+
+
+template<> UNREALTOOLSPLUGIN_API UClass* StaticClass<class UCatenary>();
+
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_SPARSE_DATA
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_SPARSE_DATA_PROPERTY_ACCESSORS
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_EDITOR_ONLY_SPARSE_DATA_PROPERTY_ACCESSORS
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_RPC_WRAPPERS \
+ \
+	DECLARE_FUNCTION(execCreateCatenarySplinePoints);
+
+
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_ACCESSORS
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_INCLASS \
+private: \
+	static void StaticRegisterNativesUCatenary3D(); \
+	friend struct Z_Construct_UClass_UCatenary3D_Statics; \
+public: \
+	DECLARE_CLASS(UCatenary3D, UCatenary, COMPILED_IN_FLAGS(0), CASTCLASS_None, TEXT("/Script/UnrealToolsPlugin"), NO_API) \
+	DECLARE_SERIALIZER(UCatenary3D)
+
+
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_STANDARD_CONSTRUCTORS \
+	/** Standard constructor, called after all reflected properties have been initialized */ \
+	NO_API UCatenary3D(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
+	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UCatenary3D) \
+	DECLARE_VTABLE_PTR_HELPER_CTOR(NO_API, UCatenary3D); \
+	DEFINE_VTABLE_PTR_HELPER_CTOR_CALLER(UCatenary3D); \
+private: \
+	/** Private move- and copy-constructors, should never be used */ \
+	NO_API UCatenary3D(UCatenary3D&&); \
+	NO_API UCatenary3D(const UCatenary3D&); \
+public: \
+	NO_API virtual ~UCatenary3D();
+
+
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_44_PROLOG
+#define FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_GENERATED_BODY_LEGACY \
+PRAGMA_DISABLE_DEPRECATION_WARNINGS \
+public: \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_SPARSE_DATA \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_SPARSE_DATA_PROPERTY_ACCESSORS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_EDITOR_ONLY_SPARSE_DATA_PROPERTY_ACCESSORS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_RPC_WRAPPERS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_ACCESSORS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_INCLASS \
+	FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h_47_STANDARD_CONSTRUCTORS \
+public: \
+PRAGMA_ENABLE_DEPRECATION_WARNINGS
+
+
+template<> UNREALTOOLSPLUGIN_API UClass* StaticClass<class UCatenary3D>();
+
+#undef CURRENT_FILE_ID
+#define CURRENT_FILE_ID FID_Users_soram_Desktop_UnrealToolsPlugin_HostProject_Plugins_UnrealToolsPlugin_Source_UnrealToolsPlugin_Public_BPLibraries_Math_Catenary_BPLibrary_h
+
+
+#define FOREACH_ENUM_EEVALUABILITY(op) \
+	op(Unknown) \
+	op(Catenary) \
+	op(LinearVertical) \
+	op(LineSegment) 
+PRAGMA_ENABLE_DEPRECATION_WARNINGS

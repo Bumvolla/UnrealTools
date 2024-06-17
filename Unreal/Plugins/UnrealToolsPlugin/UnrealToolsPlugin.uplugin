@@ -18,7 +18,7 @@
 	"Modules": [
 		{
 			"Name": "UnrealToolsPlugin",
-			"Type": "Runtime",
+			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}
 	],
