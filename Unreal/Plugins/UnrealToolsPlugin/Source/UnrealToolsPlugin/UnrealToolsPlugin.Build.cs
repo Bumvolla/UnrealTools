@@ -36,11 +36,9 @@ public class UnrealToolsPlugin : ModuleRules
                 "Niagara",
                 "AssetTools",
                 "ContentBrowser",
-				//#if WITH_EDITOR
                 "EditorScriptingUtilities",
                 "Blutility",
                 "UnrealEd",
-				//#endif
             }
 			);
 			
@@ -57,9 +55,9 @@ public class UnrealToolsPlugin : ModuleRules
                 "InputCore",
                 "EditorFramework",
                 "ToolMenus",
-				//#if WITH_EDITOR
 				"UnrealEd",
-				//#endif
+				"Projects",
+
 
 
 
