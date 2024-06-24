@@ -6,6 +6,7 @@
 #include "ObjectTools.h"
 #include <EditorUtilityLibrary.h>
 #include "ActorFactories/ActorFactory.h"
+#include "CustomStyle/CustomStyle.h"
 
 #define LOCTEXT_NAMESPACE "FUnrealToolsPluginModule"
 
@@ -13,12 +14,17 @@ void FUnrealToolsPluginModule::StartupModule()
 {
     // This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
     InitCBMenuExtention();
+
+    FUnrealToolsStyle::InitializeIcons();
+
 }
 
 void FUnrealToolsPluginModule::ShutdownModule()
 {
     // This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
     // we call this function before unloading the module.
+
+    FUnrealToolsStyle::ShutDown();
 }
 
 void FUnrealToolsPluginModule::InitCBMenuExtention()
@@ -52,9 +58,9 @@ void FUnrealToolsPluginModule::AddCBMenuEntry(FMenuBuilder& MenuBuilder)
 {
     MenuBuilder.AddMenuEntry
     (
-        FText::FromString(TEXT("Make selected textures a Mask")),
+        FText::FromString(TEXT("Make Mask")),
         FText::FromString(TEXT("Change texture compression settings to mask")),
-        FSlateIcon(),
+        FSlateIcon(FUnrealToolsStyle::GetStyleSetName(), "ContentBrowser.MakeMask"),
         FExecuteAction::CreateRaw(this, &FUnrealToolsPluginModule::MakeMaskTexture)
     );
 }
@@ -71,7 +77,8 @@ void FUnrealToolsPluginModule::MakeMaskTexture()
         }
         else
         {
-            UE_LOG(LogTemp, Warning, TEXT(" was not a texture"));
+            FString AssetName = asset.AssetName.ToString();
+            PrintLog(AssetName + TEXT(" was not a texture"));
         }
     }
 }

@@ -5,9 +5,8 @@
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyleRegistry.h"
 
-FName FUnrealToolsStyle::StyleSetName = FName("CustomStyle");
+FName FUnrealToolsStyle::StyleSetName = FName("UnrealToolsCustomStyle");
 TSharedPtr<FSlateStyleSet> FUnrealToolsStyle::CreatedSlateStyleSet = nullptr;
-
 
 void FUnrealToolsStyle::InitializeIcons()
 {
@@ -23,16 +22,23 @@ TSharedRef<FSlateStyleSet> FUnrealToolsStyle::CreateSlateStyleSet()
 {
 	TSharedRef<FSlateStyleSet> CustomStyleSet = MakeShareable(new FSlateStyleSet(StyleSetName));
 
-	const FString IconDirectory = IPluginManager::Get().FindPlugin(TEXT("UnrealTools"))->GetBaseDir() / "Resources";
+	const FString IconDirectory = IPluginManager::Get().FindPlugin(TEXT("UnrealToolsPlugin"))->GetBaseDir() / "Resources";
 	CustomStyleSet->SetContentRoot(IconDirectory);
 
 	const FVector2D Icon16x16(16.f, 16.f);
+
+
 	const FString IconDir = IconDirectory + TEXT("/TextureToMask_16.png");
 	CustomStyleSet->Set("ContentBrowser.MakeMask", new FSlateImageBrush( IconDir, Icon16x16));
 
-	return TSharedRef<FSlateStyleSet>();
+	return CustomStyleSet;
 }
 
 void FUnrealToolsStyle::ShutDown()
 {
+	if (CreatedSlateStyleSet.IsValid())
+	{
+		FSlateStyleRegistry::UnRegisterSlateStyle(*CreatedSlateStyleSet);
+		CreatedSlateStyleSet.Reset();
+	}
 }
