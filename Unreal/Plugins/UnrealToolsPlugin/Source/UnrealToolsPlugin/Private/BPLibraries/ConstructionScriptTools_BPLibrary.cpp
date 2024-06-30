@@ -35,4 +35,20 @@ void UConstructionScriptToolsBPLibrary::RerunAllClassActorsConstructionScript(co
 	}
 }
 
+TArray<FTransform> UConstructionScriptToolsBPLibrary::GetTransformPointsAlongSpline(const USplineComponent* spline, const float distBetweenObjects)
+{
+
+	float splineLenght = spline->GetSplineLength();
+	int instancesToSpawn = trunc(splineLenght / distBetweenObjects);
+
+	TArray<FTransform> SpawnPointsTransform;
+
+	for (int i = 0; i < instancesToSpawn; i++)
+	{
+		SpawnPointsTransform.Add(spline->GetTransformAtDistanceAlongSpline(splineLenght / instancesToSpawn * i, ESplineCoordinateSpace::Local, false));
+	}
+
+	return SpawnPointsTransform;
+}
+
 

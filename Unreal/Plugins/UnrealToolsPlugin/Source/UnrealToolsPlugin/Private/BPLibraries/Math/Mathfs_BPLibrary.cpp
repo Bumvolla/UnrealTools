@@ -8,7 +8,7 @@ UMathfsBPLibrary::UMathfsBPLibrary(const FObjectInitializer& ObjectInitializer) 
 
 
 
-#pragma region Math
+
 float UMathfsBPLibrary::Sinh(const float x)
 {
 	return FGenericPlatformMath::Sinh(x);
@@ -23,4 +23,4 @@ float UMathfsBPLibrary::Asinh(const float x)
 {
 	return x + sqrt(x*x + 1);
 }
-#pragma endregion
+
