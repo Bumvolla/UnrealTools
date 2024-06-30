@@ -2,7 +2,9 @@
 
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Components/SplineComponent.h"
 #include "ConstructionScriptTools_BPLibrary.generated.h"
+
 
 
 UCLASS()
@@ -18,4 +20,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Construction Script Tools")
 	static void RerunAllClassActorsConstructionScript(const AActor* thisActor);
 
+	UFUNCTION(BlueprintCallable, Category = "Construction Script Tools")
+	static TArray<FTransform> GetTransformPointsAlongSpline(const USplineComponent* spline, float distBetweenObjects);
 };
