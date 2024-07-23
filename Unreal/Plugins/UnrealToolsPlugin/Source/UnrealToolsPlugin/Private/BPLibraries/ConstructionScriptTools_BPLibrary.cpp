@@ -3,6 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "Math/Axis.h"
 
 
 
@@ -50,5 +51,47 @@ TArray<FTransform> UConstructionScriptToolsBPLibrary::GetTransformPointsAlongSpl
 
 	return SpawnPointsTransform;
 }
+
+float UConstructionScriptToolsBPLibrary::GetMeshLenght(const UStaticMesh* Mesh, EAxis::Type Axis)
+{	  
+	FVector MinBoundingBox = Mesh->GetBoundingBox().Min;
+	FVector MaxBoundingBox = Mesh->GetBoundingBox().Max;
+
+	switch (Axis)
+	{
+	case EAxis::X:
+		return FMath::Abs(MinBoundingBox.X) + FMath::Abs(MaxBoundingBox.X);
+		break;
+	case EAxis::Y:
+		return FMath::Abs(MinBoundingBox.Y) + FMath::Abs(MaxBoundingBox.Y);
+		break;
+	case EAxis::Z:
+		return FMath::Abs(MinBoundingBox.Z) + FMath::Abs(MaxBoundingBox.Z);
+		break;
+	default:
+		UE_LOG(ConstructionScriptTools, Warning, TEXT("No axis selected, defaulting to X"))
+		return FMath::Abs(MinBoundingBox.X) + FMath::Abs(MaxBoundingBox.X);
+		break;
+	}
+
+}
+
+int UConstructionScriptToolsBPLibrary::GetMeshesCountInSpline(const USplineComponent* Spline, const UStaticMesh* Mesh, EAxis::Type Axis)
+{
+	return FMath::TruncToInt(Spline->GetSplineLength() / GetMeshLenght(Mesh, Axis)*2);
+}
+
+void UConstructionScriptToolsBPLibrary::GetSplineMeshStartAndEndByIteration(const int Index, const float Bound,const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent)
+{
+	float StartDistance = Index * Bound;
+	float EndDistance = (Index + 1) * Bound;
+
+	StartPosition = Spline->GetLocationAtDistanceAlongSpline(StartDistance, ESplineCoordinateSpace::Local);
+	StartTangent = Spline->GetTangentAtDistanceAlongSpline(StartDistance, ESplineCoordinateSpace::Local).GetClampedToSize(0, Bound);
+	EndPosition = Spline->GetLocationAtDistanceAlongSpline(EndDistance, ESplineCoordinateSpace::Local);
+	EndTangent = Spline->GetTangentAtDistanceAlongSpline(EndDistance, ESplineCoordinateSpace::Local).GetClampedToSize(0, Bound);
+}
+
+
 
 

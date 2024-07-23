@@ -14,12 +14,22 @@ class UConstructionScriptToolsBPLibrary : public UBlueprintFunctionLibrary
 
 public:
 
+
 	UFUNCTION(BlueprintCallable, Category = "Construction Script Tools")
 	static void RerunConstructionScript(AActor* objectToConstruct);
 
 	UFUNCTION(BlueprintCallable, Category = "Construction Script Tools")
 	static void RerunAllClassActorsConstructionScript(const AActor* thisActor);
 
-	UFUNCTION(BlueprintCallable, Category = "Construction Script Tools")
+	UFUNCTION(BlueprintCallable, Category = "Spline Construction Script Tools")
 	static TArray<FTransform> GetTransformPointsAlongSpline(const USplineComponent* spline, float distBetweenObjects);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Construction Script Tools")
+	static float GetMeshLenght(const UStaticMesh* Mesh, EAxis::Type Axis);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spline Construction Script Tools")
+	static int GetMeshesCountInSpline(const USplineComponent* Spline, const UStaticMesh* Mesh, EAxis::Type Axis);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spline Construction Script Tools")
+	static void GetSplineMeshStartAndEndByIteration(const int Index, const float Bound, const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent);
 };
