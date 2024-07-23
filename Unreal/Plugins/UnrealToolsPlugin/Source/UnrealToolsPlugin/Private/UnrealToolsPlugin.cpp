@@ -7,22 +7,34 @@
 #include <EditorUtilityLibrary.h>
 #include "ActorFactories/ActorFactory.h"
 #include "CustomStyle/CustomStyle.h"
+#include "ISettingsModule.h"
+#include "ISettingsSection.h"
+#include "PluginConfig.h"
 
 #define LOCTEXT_NAMESPACE "FUnrealToolsPluginModule"
 
 void FUnrealToolsPluginModule::StartupModule()
 {
-    // This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+    if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+    {
+        SettingsModule->RegisterSettings("Project", "Plugins", "Unreal Tools",
+            LOCTEXT("Unreal tools plugin configuration", "Unreal Tools"),
+            LOCTEXT("MyPluginSettingsDescription", "Unreal tools misc configurations"),
+            GetMutableDefault<UPluginConfig>()
+        );
+    }
+    
     InitCBMenuExtention();
 
     FUnrealToolsStyle::InitializeIcons();
-
 }
 
 void FUnrealToolsPluginModule::ShutdownModule()
 {
-    // This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-    // we call this function before unloading the module.
+    if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+    {
+        SettingsModule->UnregisterSettings("Project", "Plugins", "MyPlugin");
+    }
 
     FUnrealToolsStyle::ShutDown();
 }

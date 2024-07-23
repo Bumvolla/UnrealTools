@@ -11,103 +11,109 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetToolsModule.h"
 
+#include "PluginConfig.h"
+
 void UAAU_AssetActions::ExecuteSaveThumbnailAsTexture()
 {
-
-	//This function was created using code from NanceDevDiaries: 
+	// This function was created using code from NanceDevDiaries: 
 	// https://github.com/NanceDevDiaries/Tutorials/blob/main/ThumbnailToTextureToolTutorial/LyraEditor.cpp
-
 
 	int32 iterations = 0;
 	TArray<FAssetData> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssetData();
 
-		for (const FAssetData& Asset : SelectedAssets)
-		{
-			int32 pathSeparatorIdx;
-			FAssetData obj = Asset;
-			FString GamePath = obj.GetAsset()->GetPathName();
-			FString AssetName;
-			int32 pathEnd;
-			if (GamePath.FindLastChar('/', pathEnd)) {
-				++pathEnd;
-				AssetName += GamePath;
-				AssetName.RightChopInline(pathEnd);
-				int32 extensionIdx;
-				if (AssetName.FindChar('.', extensionIdx)) 
-				{
-					AssetName.LeftInline(extensionIdx);
-				}
-				GamePath.LeftInline(pathEnd);
-				FString Prefix = "T_";
-				FString Suffix = "_UI";
-				FString NameWithSuffix = Prefix + AssetName + Suffix;
-				AssetName = NameWithSuffix;
-			}
-			else 
+	for (const FAssetData& Asset : SelectedAssets)
+	{
+		int32 pathSeparatorIdx;
+		FAssetData obj = Asset;
+		FString GamePath = obj.GetAsset()->GetPathName();
+		FString AssetName;
+		int32 pathEnd;
+		if (GamePath.FindLastChar('/', pathEnd)) {
+			++pathEnd;
+			AssetName = GamePath.RightChop(pathEnd);
+			int32 extensionIdx;
+			if (AssetName.FindChar('.', extensionIdx))
 			{
-				AssetName = "T_Thumbnail";
+				AssetName.LeftInline(extensionIdx);
 			}
-
-			if (AssetName.FindChar('/', pathSeparatorIdx)) {
-				UE_LOG (LogTemp, Error, TEXT("Asset name contained '/' "))
-				return;
-			}
-
-			FObjectThumbnail* thumb = ThumbnailTools::GenerateThumbnailForObjectToSaveToDisk(obj.GetAsset());
-			if (!thumb) {
-				UE_LOG(LogTemp, Error, TEXT("Object have no thumbnail"))
-				return;
-			}
-
-			FString PackageName = TEXT("/Game/GeneratedThumbnails/");
-			if (!PackageName.EndsWith("/")) {
-				PackageName += "/";
-			}
-			PackageName += AssetName;
-
-			UPackage* Package = CreatePackage(*PackageName);
-			Package->FullyLoad();
-
-			UTexture2D* NewTexture = NewObject<UTexture2D>(Package, *AssetName, RF_Public | RF_Standalone | RF_MarkAsRootSet);
-			NewTexture->AddToRoot();
-			FTexturePlatformData* platformData = new FTexturePlatformData();
-			platformData->SizeX = thumb->GetImageWidth();
-			platformData->SizeY = thumb->GetImageHeight();
-			platformData->PixelFormat = EPixelFormat::PF_B8G8R8A8;
-			NewTexture->SetPlatformData(platformData);
-
-			FTexture2DMipMap* Mip = new FTexture2DMipMap();
-			platformData->Mips.Add(Mip);
-			Mip->SizeX = thumb->GetImageWidth();
-			Mip->SizeY = thumb->GetImageHeight();
-
-			Mip->BulkData.Lock(LOCK_READ_WRITE);
-			uint8* TextureData = (uint8*)Mip->BulkData.Realloc(thumb->GetUncompressedImageData().Num() * 4);
-			FMemory::Memcpy(TextureData, thumb->GetUncompressedImageData().GetData(), thumb->GetUncompressedImageData().Num());
-			Mip->BulkData.Unlock();
-
-			NewTexture->Source.Init(thumb->GetImageWidth(), thumb->GetImageHeight(), 1, 1, ETextureSourceFormat::TSF_BGRA8, thumb->GetUncompressedImageData().GetData());
-			NewTexture->LODGroup = TEXTUREGROUP_UI;
-			NewTexture->UpdateResource();
-			Package->MarkPackageDirty();
-			Package->FullyLoad();
-			FAssetRegistryModule::AssetCreated(NewTexture);
-
-			FSavePackageArgs SaveArgs;
-			SaveArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
-			SaveArgs.SaveFlags = SAVE_NoError;
-			SaveArgs.bForceByteSwapping = true;
-			FString PackageFileName = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
-			UPackage::SavePackage(Package, NewTexture, *PackageFileName, SaveArgs);
-
-			iterations++;
+			GamePath.LeftInline(pathEnd);
+			FString Prefix = "T_";
+			FString Suffix = "_UI";
+			FString NameWithSuffix = Prefix + AssetName + Suffix;
+			AssetName = NameWithSuffix;
 		}
-		if (iterations > 0)
+		else
 		{
-			PrintToNotification(TEXT("Successfully created thumbnail textures for " + FString::FromInt(iterations) + " objects"));
-			UE_LOG(LogTemp,Log,TEXT("Thumbnails created successfully"))
+			AssetName = "T_Thumbnail";
 		}
+
+		if (AssetName.FindChar('/', pathSeparatorIdx)) {
+			UE_LOG(LogTemp, Error, TEXT("Asset name contained '/' "))
+				return;
+		}
+
+		FObjectThumbnail* thumb = ThumbnailTools::GenerateThumbnailForObjectToSaveToDisk(obj.GetAsset());
+		if (!thumb) {
+			UE_LOG(LogTemp, Error, TEXT("Object has no thumbnail"))
+				return;
+		}
+
+		const UPluginConfig* Settings = GetDefault<UPluginConfig>();
+		FString settingsStoredPath = Settings->SavePath;
+
+		FString PackageName = settingsStoredPath;
+		if (!PackageName.EndsWith("/")) {
+			PackageName += "/";
+		}
+		PackageName += AssetName;
+
+		UE_LOG(LogTemp, Log, TEXT("PackageName: %s"), *PackageName);
+
+		UPackage* Package = CreatePackage(*PackageName);
+		Package->FullyLoad();
+
+		UTexture2D* NewTexture = NewObject<UTexture2D>(Package, *AssetName, RF_Public | RF_Standalone | RF_MarkAsRootSet);
+		NewTexture->AddToRoot();
+		FTexturePlatformData* platformData = new FTexturePlatformData();
+		platformData->SizeX = thumb->GetImageWidth();
+		platformData->SizeY = thumb->GetImageHeight();
+		platformData->PixelFormat = EPixelFormat::PF_B8G8R8A8;
+		NewTexture->SetPlatformData(platformData);
+
+		FTexture2DMipMap* Mip = new FTexture2DMipMap();
+		platformData->Mips.Add(Mip);
+		Mip->SizeX = thumb->GetImageWidth();
+		Mip->SizeY = thumb->GetImageHeight();
+
+		Mip->BulkData.Lock(LOCK_READ_WRITE);
+		uint8* TextureData = (uint8*)Mip->BulkData.Realloc(thumb->GetUncompressedImageData().Num() * 4);
+		FMemory::Memcpy(TextureData, thumb->GetUncompressedImageData().GetData(), thumb->GetUncompressedImageData().Num());
+		Mip->BulkData.Unlock();
+
+		NewTexture->Source.Init(thumb->GetImageWidth(), thumb->GetImageHeight(), 1, 1, ETextureSourceFormat::TSF_BGRA8, thumb->GetUncompressedImageData().GetData());
+		NewTexture->LODGroup = TEXTUREGROUP_UI;
+		NewTexture->UpdateResource();
+		Package->MarkPackageDirty();
+		Package->FullyLoad();
+		FAssetRegistryModule::AssetCreated(NewTexture);
+
+		FSavePackageArgs SaveArgs;
+		SaveArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+		SaveArgs.SaveFlags = SAVE_NoError;
+		SaveArgs.bForceByteSwapping = true;
+		FString PackageFileName = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
+		UPackage::SavePackage(Package, NewTexture, *PackageFileName, SaveArgs);
+
+		iterations++;
+	}
+	if (iterations > 0)
+	{
+		FString NotificationText = FString::Printf(TEXT("Successfully created thumbnail textures for %d objects"), iterations);
+		PrintToNotification(NotificationText);
+		UE_LOG(LogTemp, Log, TEXT("Thumbnails created successfully"))
+	}
 }
+
 
 void UAAU_AssetActions::BatchDuplicate(uint32 numOfDuplicates)
 {

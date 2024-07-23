@@ -12,6 +12,7 @@ public:
     virtual void ShutdownModule() override;
 
 private:
+
 #pragma region ContentBrowserMenuExtention
 
     void InitCBMenuExtention();
