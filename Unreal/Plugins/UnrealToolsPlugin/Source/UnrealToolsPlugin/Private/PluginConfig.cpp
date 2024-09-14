@@ -6,5 +6,5 @@
 UPluginConfig::UPluginConfig()
 {
 	// Initialize with a default path, or leave it empty if you want it to be set by the user
-	SavePath = FPaths::Combine(FPaths::ProjectContentDir(), TEXT("GeneratedThumbnails"));
+	SavePath =FDirectoryPath(FPaths::ProjectContentDir() + "GeneratedThumbnails");
 }

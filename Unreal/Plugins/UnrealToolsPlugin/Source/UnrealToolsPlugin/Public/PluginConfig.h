@@ -18,6 +18,6 @@ public:
 	UPluginConfig();
 
 	/** Path where thumbnails should be saved, defualt is: /Game/GeneratedThumbnails */
-	UPROPERTY(EditAnywhere, config, Category = "Thumbnail to Texture")
-	FString SavePath;
+	UPROPERTY(EditAnywhere, config, Category = "Thumbnail to Texture", meta = (RelativeToGameContentDir))
+	FDirectoryPath SavePath;
 };

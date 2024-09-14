@@ -59,7 +59,7 @@ void UAAU_AssetActions::ExecuteSaveThumbnailAsTexture()
 		}
 
 		const UPluginConfig* Settings = GetDefault<UPluginConfig>();
-		FString settingsStoredPath = Settings->SavePath;
+		FString settingsStoredPath = Settings->SavePath.Path;
 
 		FString PackageName = settingsStoredPath;
 		if (!PackageName.EndsWith("/")) {

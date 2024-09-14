@@ -64,12 +64,6 @@ FVector2D UCatenary::EvalDerivByArcLength(const float s, const float a, const in
 	return FVector2D(xNum / den, yNum / den);
 }
 
-
-
-
-
-
-
 TArray<FVector> UCatenary3D::CreateCatenarySplinePoints(FVector startPoint, FVector endPoint,float Slack, int m_steps)
 {
 	float lineDist = FVector::Dist(startPoint, endPoint);
