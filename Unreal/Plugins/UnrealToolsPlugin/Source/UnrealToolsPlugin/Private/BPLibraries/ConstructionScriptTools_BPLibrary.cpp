@@ -92,6 +92,22 @@ void UConstructionScriptToolsBPLibrary::GetSplineMeshStartAndEndByIteration(cons
 	EndTangent = Spline->GetTangentAtDistanceAlongSpline(EndDistance, ESplineCoordinateSpace::Local).GetClampedToSize(0, Bound);
 }
 
+void UConstructionScriptToolsBPLibrary::GetRandomPointInBox(AActor* Actor, FVector BoxExtent, FVector& Point)
+{
+	FTransform ActorTransform = Actor->GetTransform();
+
+	// Generate random point in local space
+	FVector RandomLocalPoint = FVector(
+		FMath::RandRange(-BoxExtent.X, BoxExtent.X),
+		FMath::RandRange(-BoxExtent.Y, BoxExtent.Y),
+		FMath::RandRange(-BoxExtent.Z, BoxExtent.Z)
+	);
+
+	// Transform random point to world space
+	Point = ActorTransform.TransformPosition(RandomLocalPoint);
+
+}
+
 
 
 

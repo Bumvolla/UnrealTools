@@ -32,4 +32,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spline Construction Script Tools")
 	static void GetSplineMeshStartAndEndByIteration(const int Index, const float Bound, const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent);
+
+	UFUNCTION(BlueprintCallable, Category = "Box Construction Script Tools")
+	static void GetRandomPointInBox(AActor* Actor, FVector BoxExtent, FVector& Point);
+
 };
