@@ -23,7 +23,12 @@ public:
 	static void LocalToWorldSpace(FVector LocalPoint, AActor* ReferenceActor, FVector& ReturnValue);
 
 	UFUNCTION(BlueprintPure, Category = "Math")
+	static void LocalToWorldSpaceRotationOffset(FVector LocalPoint, AActor* ReferenceActor, const FRotator& RotationOffset, FVector& ReturnValue);
+
+	UFUNCTION(BlueprintPure, Category = "Math")
 	static void WorldToLocalSpace(FVector WorldPoint, AActor* ReferenceActor, FVector& ReturnValue);
 
+	UFUNCTION(BlueprintPure, Category = "Math")
+	static void RandomVectorInRange(const FVector& VectorToRandomize, const FVector& Min, const FVector& Max, FVector& RandomizedVector);
 
 };

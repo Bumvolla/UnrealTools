@@ -30,9 +30,24 @@ void UMathfsBPLibrary::LocalToWorldSpace(FVector LocalPoint, AActor* ReferenceAc
 	ReturnValue = ActorTransform.TransformPosition(LocalPoint);
 }
 
+void UMathfsBPLibrary::LocalToWorldSpaceRotationOffset(FVector LocalPoint, AActor* ReferenceActor, const FRotator& RotationOffset, FVector& ReturnValue)
+{
+	FTransform ActorTransform = ReferenceActor->GetActorTransform();
+	ActorTransform.SetRotation(ActorTransform.GetRotation() * RotationOffset.Quaternion());
+	ReturnValue = ActorTransform.TransformPosition(LocalPoint);
+}
+
 void UMathfsBPLibrary::WorldToLocalSpace(FVector WorldPoint, AActor* ReferenceActor, FVector& ReturnValue)
 {
 	FTransform ActorTransform = ReferenceActor->GetActorTransform();
 	ReturnValue = ActorTransform.InverseTransformPosition(WorldPoint);
 }
 
+void UMathfsBPLibrary::RandomVectorInRange(const FVector& VectorToRandomize, const FVector& Min, const FVector& Max, FVector& RandomizedVector)
+{
+	float X = VectorToRandomize.X + FMath::RandRange(Min.X, Max.X);
+	float Y = VectorToRandomize.Y + FMath::RandRange(Min.Y, Max.Y);
+	float Z = VectorToRandomize.Z + FMath::RandRange(Min.Z, Max.Z);
+
+	RandomizedVector = FVector(X, Y, Z);
+}
