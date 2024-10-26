@@ -18,4 +18,12 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Math", meta = (CompactNodeTitle = "Asinh"))
 	static float Asinh(const float x);
+
+	UFUNCTION(BlueprintPure, Category = "Math")
+	static void LocalToWorldSpace(FVector LocalPoint, AActor* ReferenceActor, FVector& ReturnValue);
+
+	UFUNCTION(BlueprintPure, Category = "Math")
+	static void WorldToLocalSpace(FVector WorldPoint, AActor* ReferenceActor, FVector& ReturnValue);
+
+
 };

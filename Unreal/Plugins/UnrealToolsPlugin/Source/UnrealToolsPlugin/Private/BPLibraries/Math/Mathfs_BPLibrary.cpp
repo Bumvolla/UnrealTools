@@ -24,3 +24,15 @@ float UMathfsBPLibrary::Asinh(const float x)
 	return x + sqrt(x*x + 1);
 }
 
+void UMathfsBPLibrary::LocalToWorldSpace(FVector LocalPoint, AActor* ReferenceActor, FVector& ReturnValue)
+{
+	FTransform ActorTransform = ReferenceActor->GetActorTransform();
+	ReturnValue = ActorTransform.TransformPosition(LocalPoint);
+}
+
+void UMathfsBPLibrary::WorldToLocalSpace(FVector WorldPoint, AActor* ReferenceActor, FVector& ReturnValue)
+{
+	FTransform ActorTransform = ReferenceActor->GetActorTransform();
+	ReturnValue = ActorTransform.InverseTransformPosition(WorldPoint);
+}
+
