@@ -13,7 +13,12 @@ class UConstructionScriptToolsBPLibrary : public UBlueprintFunctionLibrary
 	GENERATED_UCLASS_BODY()
 
 public:
+public:
+	UFUNCTION(BlueprintCallable, Category = "Property Utils", meta = (DevelopmentOnly))
+	static bool CopyInstancePropertiesToClassDefaults(UObject* SourceInstance);
 
+private:
+	static bool IsPropertySafeToWrite(FProperty* Property);
 
 	UFUNCTION(BlueprintCallable, Category = "Construction Script Tools")
 	static void RerunConstructionScript(AActor* objectToConstruct);

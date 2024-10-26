@@ -12,6 +12,66 @@ UConstructionScriptToolsBPLibrary::UConstructionScriptToolsBPLibrary(const FObje
 
 }
 
+bool UConstructionScriptToolsBPLibrary::CopyInstancePropertiesToClassDefaults(UObject* SourceInstance)
+{
+	if (!SourceInstance || !GIsEditor)
+	{
+		return false;
+	}
+
+	// Get the class and its CDO
+	UClass* Class = SourceInstance->GetClass();
+	UObject* CDO = Class->GetDefaultObject();
+
+	if (!CDO || SourceInstance->HasAnyFlags(RF_ClassDefaultObject))
+	{
+		return false;
+	}
+
+	// Start a transaction for undo support
+	const FScopedTransaction Transaction(FText::FromString(FString::Printf(TEXT("Copy Instance Properties to %s Defaults"), *Class->GetName())));
+	CDO->Modify();
+
+	// Iterate through all properties of the class
+	for (TFieldIterator<FProperty> PropIt(Class); PropIt; ++PropIt)
+	{
+		FProperty* Property = *PropIt;
+
+		if (!IsPropertySafeToWrite(Property))
+		{
+			continue;
+		}
+
+		// Copy the property value from instance to CDO
+		void* SourceAddr = Property->ContainerPtrToValuePtr<void>(SourceInstance);
+		void* DestAddr = Property->ContainerPtrToValuePtr<void>(CDO);
+		Property->CopyCompleteValue(DestAddr, SourceAddr);
+	}
+
+	// Notify the editor that we've modified the CDO
+	CDO->PostEditChange();
+	return true;
+}
+
+bool UConstructionScriptToolsBPLibrary::IsPropertySafeToWrite(FProperty* Property)
+{
+	{
+		if (!Property)
+			return false;
+
+		// Skip properties that shouldn't be modified
+		if (Property->HasAnyPropertyFlags(CPF_Transient | CPF_DuplicateTransient | CPF_NonPIEDuplicateTransient))
+			return false;
+
+		// Skip references and pointers
+		if (Property->IsA<FObjectProperty>() || Property->IsA<FDelegateProperty>() ||
+			Property->IsA<FMulticastDelegateProperty>())
+			return false;
+
+		return true;
+	}
+}
+
 void UConstructionScriptToolsBPLibrary::RerunConstructionScript(AActor* objectToConstruct)
 {
 
