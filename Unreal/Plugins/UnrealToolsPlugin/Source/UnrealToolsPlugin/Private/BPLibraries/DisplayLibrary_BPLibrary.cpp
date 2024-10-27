@@ -32,7 +32,7 @@ TArray<FDisplayInfo> UDisplayLibrary_BPLibrary::GetAllDisplays()
 	return AllDisplays;
 }
 
-bool UDisplayLibrary_BPLibrary::SetActiveDisplay(int DisplayIndex)
+bool UDisplayLibrary_BPLibrary::SetActiveDisplay(int32 DisplayIndex)
 {
 	FDisplayMetrics Displays;
 	FDisplayMetrics::RebuildDisplayMetrics(Displays);

@@ -4,14 +4,6 @@
 #include "BPLibraries/Math/Mathfs_BPLibrary.h"
 #include "Catenary_BPLibrary.generated.h"
 
-UENUM()
-enum EEvaluability {
-	Unknown = 0,
-	Catenary,
-	LinearVertical,
-	LineSegment
-};
-
 UCLASS()
 class UCatenary : public UMathfsBPLibrary
 {
@@ -48,7 +40,21 @@ class UCatenary3D : public UCatenary
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "Catenary3D")
-	static TArray<FVector> CreateCatenarySplinePoints(FVector startPoint, FVector endPoint,float Slack, int m_steps = 10);
+	// Newton's Method - Most accurate
+	UFUNCTION(BlueprintCallable, Category = "Catenary")
+	static TArray<FVector> CreateCatenaryNewton(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps);
+
+	// Quick Approximation - Fastest but less accurate
+	UFUNCTION(BlueprintCallable, Category = "Catenary")
+	static TArray<FVector> CreateCatenaryFast(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps);
+
+	// Fixed-point iteration - Balance of speed and accuracy
+	UFUNCTION(BlueprintCallable, Category = "Catenary")
+	static TArray<FVector> CreateCatenaryFixed(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps);
+
+private:
+	static float FindParameterNewton(float TargetRatio);
+	static float FindParameterApproximate(float TargetRatio);
+	static float FindParameterFixed(float TargetRatio);
 
 };

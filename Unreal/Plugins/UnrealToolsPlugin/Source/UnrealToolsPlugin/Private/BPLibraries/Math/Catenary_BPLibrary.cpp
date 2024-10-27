@@ -64,89 +64,191 @@ FVector2D UCatenary::EvalDerivByArcLength(const float s, const float a, const in
 	return FVector2D(xNum / den, yNum / den);
 }
 
-TArray<FVector> UCatenary3D::CreateCatenarySplinePoints(FVector startPoint, FVector endPoint,float Slack, int m_steps)
+TArray<FVector> UCatenary3D::CreateCatenaryNewton(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps)
 {
-	float lineDist = FVector::Dist(startPoint, endPoint);
-	float lineDistH = FVector::Dist(FVector (endPoint.X, endPoint.Y,startPoint.Z), startPoint);
-	float length = lineDist + FMath::Max(0.0001f, Slack);
-	float r = 0.f;
-	float s = startPoint.Z;
-	float u = lineDistH;
-	float v = endPoint.Z;
 
+	float TotalDistance = FVector::Dist(StartPoint, EndPoint);
+	float HorizontalDistance = FVector::Dist(
+		FVector(EndPoint.X, EndPoint.Y, StartPoint.Z),
+		StartPoint
+	);
+	float CableLength = TotalDistance + FMath::Max(0.0001f, Slack);
+	float HeightDiff = EndPoint.Z - StartPoint.Z;
 
-	float ZTarget = FMath::Sqrt(FMath::Pow(length, 2.f) - FMath::Pow(v - s, 2.f)) / (u - r);
+	float TargetRatio = FMath::Sqrt(
+		FMath::Pow(CableLength, 2.f) - FMath::Pow(HeightDiff, 2.f)
+	) / HorizontalDistance;
 
-	int loops = 30;
-	int iterationCount = 0;
-	int maxIterations = loops * 10; // For safety.
-	bool found = false;
+	float Z = FindParameterNewton(TargetRatio);
 
-	double z = 0.0f;
-	float ztest = 0.0f;
-	float zstep = 100.0f;
-	float ztesttarget = 0.0f;
+	float A = HorizontalDistance / (2.0f * Z);
+	float P = (HorizontalDistance - A * FMath::Loge(
+		(CableLength + HeightDiff) / (CableLength - HeightDiff)
+	)) / 2.0f;
+	float Q = (EndPoint.Z + StartPoint.Z -
+		CableLength * FMath::Cosh(Z) / FMath::Sinh(Z)) / 2.0f;
 
-	for (int i = 0; i < loops; i++) {
-		for (int j = 0; j < 10; j++) {
-			iterationCount++;
-			ztest = z + zstep;
-			ztesttarget = FMath::Sinh(ztest) / ztest;
+	TArray<FVector> Points;
+	Points.SetNum(Steps);
 
-			if (std::isinf(ztesttarget))
-				continue;
+	for (int32 i = 0; i < Steps; ++i)
+	{
+		float T = static_cast<float>(i) / (Steps - 1);
 
-			if (ztesttarget == ZTarget) {
-				found = true;
-				z = ztest;
-				break;
-			}
-			else if (ztesttarget > ZTarget) {
-				break;
-			}
-			else {
-				z = ztest;
-			}
+		FVector Pos;
+		Pos.X = FMath::Lerp(StartPoint.X, EndPoint.X, T);
+		Pos.Y = FMath::Lerp(StartPoint.Y, EndPoint.Y, T);
+		Pos.Z = A * FMath::Cosh((T * HorizontalDistance - P) / A) + Q;
 
-			if (iterationCount > maxIterations) {
-				found = true;
-				break;
-			}
-		}
-
-		if (found)
-			break;
-
-		zstep *= 0.1f;
+		Points[i] = Pos;
 	}
 
+	return Points;
+}
 
-	float a = (u - r) / (2.0f * z);
-	float p = (r + u - a * FMath::Loge((length + v - s) / (length - v + s))) / 2.0f;
-	float q = (v + s - length * FMath::Cosh(z) / FMath::Sinh(z)) / 2.0f;
+TArray<FVector> UCatenary3D::CreateCatenaryFast(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps)
+{
 
+	float TotalDistance = FVector::Dist(StartPoint, EndPoint);
+	float HorizontalDistance = FVector::Dist(
+		FVector(EndPoint.X, EndPoint.Y, StartPoint.Z),
+		StartPoint
+	);
+	float CableLength = TotalDistance + FMath::Max(0.0001f, Slack);
+	float HeightDiff = EndPoint.Z - StartPoint.Z;
 
-		FString zefe = FString::SanitizeFloat(FMath::Cosh(z));
-		PrintLog(zefe);
+	float TargetRatio = FMath::Sqrt(
+		FMath::Pow(CableLength, 2.f) - FMath::Pow(HeightDiff, 2.f)
+	) / HorizontalDistance;
 
-		TArray<FVector> points;
-		points.SetNum(m_steps);
+	float Z = FindParameterApproximate(TargetRatio);
 
-		float stepsf = m_steps - 1;
-		float stepf;
+	float A = HorizontalDistance / (2.0f * Z);
+	float P = (HorizontalDistance - A * FMath::Loge(
+		(CableLength + HeightDiff) / (CableLength - HeightDiff)
+	)) / 2.0f;
+	float Q = (EndPoint.Z + StartPoint.Z -
+		CableLength * FMath::Cosh(Z) / FMath::Sinh(Z)) / 2.0f;
 
-		for (int i = 0; i < m_steps; i++) {
-			stepf = i / stepsf;
-			FVector pos;
-			pos = FVector(0, 0, 0);
-			pos.X = FMath::Lerp(startPoint.X, endPoint.X, stepf);
-			pos.Y = FMath::Lerp(startPoint.Y, endPoint.Y, stepf);
-			pos.Z = a * FMath::Cosh(((stepf * lineDistH) - p) / a) + q;
+	TArray<FVector> Points;
+	Points.SetNum(Steps);
 
+	for (int32 i = 0; i < Steps; ++i)
+	{
+		float T = static_cast<float>(i) / (Steps - 1);
 
+		FVector Pos;
+		Pos.X = FMath::Lerp(StartPoint.X, EndPoint.X, T);
+		Pos.Y = FMath::Lerp(StartPoint.Y, EndPoint.Y, T);
+		Pos.Z = A * FMath::Cosh((T * HorizontalDistance - P) / A) + Q;
 
-			points[i] = pos;
+		Points[i] = Pos;
+	}
+
+	return Points;
+}
+
+TArray<FVector> UCatenary3D::CreateCatenaryFixed(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps)
+{
+
+	// Same as Newton version but using FindParameterApproximate
+	float TotalDistance = FVector::Dist(StartPoint, EndPoint);
+	float HorizontalDistance = FVector::Dist(
+		FVector(EndPoint.X, EndPoint.Y, StartPoint.Z),
+		StartPoint
+	);
+	float CableLength = TotalDistance + FMath::Max(0.0001f, Slack);
+	float HeightDiff = EndPoint.Z - StartPoint.Z;
+
+	float TargetRatio = FMath::Sqrt(
+		FMath::Pow(CableLength, 2.f) - FMath::Pow(HeightDiff, 2.f)
+	) / HorizontalDistance;
+
+	float Z = FindParameterFixed(TargetRatio);
+
+	float A = HorizontalDistance / (2.0f * Z);
+	float P = (HorizontalDistance - A * FMath::Loge(
+		(CableLength + HeightDiff) / (CableLength - HeightDiff)
+	)) / 2.0f;
+	float Q = (EndPoint.Z + StartPoint.Z -
+		CableLength * FMath::Cosh(Z) / FMath::Sinh(Z)) / 2.0f;
+
+	TArray<FVector> Points;
+	Points.SetNum(Steps);
+
+	for (int32 i = 0; i < Steps; ++i)
+	{
+		float T = static_cast<float>(i) / (Steps - 1);
+
+		FVector Pos;
+		Pos.X = FMath::Lerp(StartPoint.X, EndPoint.X, T);
+		Pos.Y = FMath::Lerp(StartPoint.Y, EndPoint.Y, T);
+		Pos.Z = A * FMath::Cosh((T * HorizontalDistance - P) / A) + Q;
+
+		Points[i] = Pos;
+	}
+
+	return Points;
+}
+
+float UCatenary3D::FindParameterNewton(float TargetRatio)
+{
+	float Z = 1.0f;  // Initial guess
+	constexpr int32 MAX_ITERATIONS = 8;
+	constexpr float TOLERANCE = 0.01f;
+
+	for (int32 i = 0; i < MAX_ITERATIONS; ++i)
+	{
+		float Ratio = FMath::Sinh(Z) / Z;
+		float Derivative = (FMath::Cosh(Z) * Z - FMath::Sinh(Z)) / (Z * Z);
+
+		float Delta = (Ratio - TargetRatio) / Derivative;
+		Z -= Delta;
+
+		if (FMath::Abs(Delta) < TOLERANCE)
+			break;
+	}
+
+	return Z;
+}
+
+float UCatenary3D::FindParameterApproximate(float TargetRatio)
+{
+	// Quick approximation for different ranges
+	if (TargetRatio < 1.2f)
+		return 2.0f * (TargetRatio - 1.0f);
+
+	if (TargetRatio < 2.0f)
+		return 1.0f + FMath::Sqrt(6.0f * (TargetRatio - 1.0f));
+
+	return FMath::Loge(2.0f * TargetRatio);
+}
+
+float UCatenary3D::FindParameterFixed(float TargetRatio)
+{
+	float Z = 1.0f;
+	constexpr int32 MAX_STEPS = 8;
+	float StepSize = 10.0f;
+
+	for (int32 i = 0; i < MAX_STEPS; ++i)
+	{
+		for (int32 j = 0; j < 5; ++j)
+		{
+			float TestZ = Z + StepSize;
+			float Ratio = FMath::Sinh(TestZ) / TestZ;
+
+			if (std::isinf(Ratio))
+				break;
+
+			if (FMath::Abs(Ratio - TargetRatio) < 0.05f)
+				return TestZ;
+
+			if (Ratio > TargetRatio)
+				break;
+
+			Z = TestZ;
 		}
-		
-		return points;
+		StepSize *= 0.2f;
+	}
+	return Z;
 }
