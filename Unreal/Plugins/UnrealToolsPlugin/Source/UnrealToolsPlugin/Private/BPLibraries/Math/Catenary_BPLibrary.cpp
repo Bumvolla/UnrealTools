@@ -237,7 +237,7 @@ float UCatenary3D::FindParameterFixed(float TargetRatio)
 			float TestZ = Z + StepSize;
 			float Ratio = FMath::Sinh(TestZ) / TestZ;
 
-			if (std::isinf(Ratio))
+			if (isinf(Ratio))
 				break;
 
 			if (FMath::Abs(Ratio - TargetRatio) < 0.05f)
