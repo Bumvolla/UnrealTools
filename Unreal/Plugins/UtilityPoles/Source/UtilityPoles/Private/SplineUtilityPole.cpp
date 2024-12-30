@@ -44,40 +44,47 @@ void ASplineUtilityPole::Tick(float DeltaTime)
 
 void ASplineUtilityPole::Generate()
 {
-    // Clear existing poles
+    TArray<FTransform> Transforms = USplineHelpers::GetTransformPointsAlongSpline(Spline, DistanceBetweenObjects);
     TArray<UChildActorComponent*> Keys;
     PoleIndices.GetKeys(Keys);
-    for (UChildActorComponent* ChildActor : Keys)
+
+    const int32 ExistingPoleCount = PoleIndices.Num();
+    const int32 NeededPoleCount = Transforms.Num();
+
+    if (NeededPoleCount < ExistingPoleCount)
     {
-        if (ChildActor)
+        for (int i = NeededPoleCount; i < ExistingPoleCount; i++)
         {
-            ChildActor->DestroyComponent(); // Destroy the component
+            uint32 KeyHash = GetTypeHash(Keys[i]);
+            UActorComponent* Component = Keys[i];
+            PoleIndices.RemoveByHash(KeyHash, Keys[i]);
+            Component->DestroyComponent();
         }
     }
-    PoleIndices.Empty(); // Clear the map
 
-    // Generate new poles along the spline
-    int32 Iteration = 0;
-    for (const FTransform& Transform : USplineHelpers::GetTransformPointsAlongSpline(Spline, DistanceBetweenObjects))
+    for (int32 Iteration = 0; Iteration < NeededPoleCount; Iteration++)
     {
-        // Create a unique name for the new component
-        FString CopyName = FString::Printf(TEXT("UtilityPole%i"), Iteration);
+        const FTransform& Transform = Transforms[Iteration];
+        UChildActorComponent* ExistingPole = Iteration < Keys.Num() ? Keys[Iteration] : nullptr;
 
-        // Create a new ChildActorComponent
-        UChildActorComponent* Copy = NewObject<UChildActorComponent>(this, *CopyName);
-        if (Copy)
+
+        if (ExistingPole)
         {
-            Copy->SetChildActorClass(PresetClass); // Set the child actor class
-            Copy->RegisterComponent(); // Register the component
-
-            Copy->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-
-            Copy->SetRelativeTransform(Transform);
-
-            // Add the component to the map
-            PoleIndices.Add(Copy, Iteration);
+            ExistingPole->SetRelativeTransform(Transform);
+            PoleIndices[ExistingPole] = Iteration;
         }
-
-        Iteration++;
+        else
+        {
+            FString PoleName = FString::Printf(TEXT("UtilityPole%i"), Iteration);
+            UChildActorComponent* NewPole = NewObject<UChildActorComponent>(this, *PoleName);
+            if (NewPole)
+            {
+                NewPole->SetChildActorClass(PresetClass);
+                NewPole->RegisterComponent();
+                NewPole->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+                NewPole->SetRelativeTransform(Transform);
+                PoleIndices.Add(NewPole, Iteration);
+            }
+        }
     }
 }
