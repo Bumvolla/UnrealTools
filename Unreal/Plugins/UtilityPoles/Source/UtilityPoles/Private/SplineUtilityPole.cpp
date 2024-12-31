@@ -2,8 +2,8 @@
 
 
 #include "SplineUtilityPole.h"
-#include "SplineHelpers.h"
 #include "Components/ChildActorComponent.h"
+#include "Components/SplineMeshComponent.h"
 
 // Sets default values
 ASplineUtilityPole::ASplineUtilityPole()
@@ -33,6 +33,70 @@ void ASplineUtilityPole::OnConstruction(const FTransform& Transform)
     Super::OnConstruction(Transform);
 
     if (autoGenerate) Generate();
+}
+
+void ASplineUtilityPole::GenerateCables()
+{
+    TArray<UChildActorComponent*> Keys;
+    PoleIndices.GetKeys(Keys);
+    static int32 PolesAmmount = Keys.Num();
+
+    TArray<AUtilityPolePreset*> CastedKeys;
+    CastedKeys.Reserve(PolesAmmount);
+
+    for (int32 i = 0; i < PolesAmmount - 1; i++)
+    {
+        CastedKeys.Add(StaticCast<AUtilityPolePreset*>(Keys[i]));
+    }
+
+    AUtilityPolePreset presetClass = StaticCast<AUtilityPolePreset>(PresetClass);
+    int32 transformsAmmount = presetClass.CableTargets.Num();
+
+
+    for (int32 i = 0; i < transformsAmmount - 1; i++)
+    {
+
+        TSet<FVector> CatenaryPoints;
+        CatenaryPoints.Empty();
+
+        for (int32 j = 0; j < PolesAmmount - 1; j++)
+        {
+            
+            if (j + 1 <= PolesAmmount)
+            {
+                CatenaryPoints.Append(UCatenaryHelpers::CreateCatenaryNewton(CastedKeys[j]->CableTargets[i], CastedKeys[j + 1]->CableTargets[i], Slack, SplineResolution));
+            }
+            else
+            {
+                CatenaryPoints.Append(UCatenaryHelpers::CreateCatenaryNewton(CastedKeys[j]->CableTargets[i], CastedKeys[0]->CableTargets[i], Slack, SplineResolution));
+            }
+
+        }
+        USplineComponent* Wire = NewObject<USplineComponent>(this);
+        Wire->RegisterComponent();
+        Wire->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+        Wire->SetSplinePoints(CatenaryPoints.Array(), ESplineCoordinateSpace::World);
+
+        for (int k = 0; k < USplineHelpers::GetMeshesCountInSpline(Wire, WireMesh, WireMeshAxis); k++)
+        {
+            USplineMeshComponent* splineMesh = NewObject<USplineMeshComponent>(this);
+            splineMesh->RegisterComponent();
+            splineMesh->AttachToComponent(Wire, FAttachmentTransformRules::KeepRelativeTransform);
+
+            FVector StartPoint, StartTangent;
+            FVector EndPoint, EndTangent;
+            Wire->GetLocationAndTangentAtSplinePoint(k, StartPoint, StartTangent, ESplineCoordinateSpace::Local);
+            Wire->GetLocationAndTangentAtSplinePoint(k + 1, EndPoint, EndTangent, ESplineCoordinateSpace::Local);
+
+            splineMesh->SetStartAndEnd(StartPoint, StartTangent,
+                EndPoint, EndTangent);
+
+            splineMesh->SetStaticMesh(WireMesh);
+            splineMesh->SetForwardAxis(ESplineMeshAxis::X);
+        }
+
+    }
 }
 
 // Called every frame

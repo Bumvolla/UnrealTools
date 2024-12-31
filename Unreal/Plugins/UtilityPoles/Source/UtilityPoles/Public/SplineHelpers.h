@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Components/SplineComponent.h"
+
+#include "Math/Axis.h"
+
 #include "SplineHelpers.generated.h"
 
 /**
@@ -29,6 +32,30 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spline Construction Script Tools")
 	static void GetSplineMeshStartAndEndByIteration(const int Index, const float Bound, const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent);
 
+};
 
+UCLASS()
+class UTILITYPOLES_API UCatenaryHelpers : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+
+	// Newton's Method - Most accurate
+	UFUNCTION(BlueprintCallable, Category = "Catenary")
+	static TArray<FVector> CreateCatenaryNewton(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps);
+
+	// Quick Approximation - Fastest but less accurate
+	UFUNCTION(BlueprintCallable, Category = "Catenary")
+	static TArray<FVector> CreateCatenaryFast(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps);
+
+	// Fixed-point iteration - Balance of speed and accuracy
+	UFUNCTION(BlueprintCallable, Category = "Catenary")
+	static TArray<FVector> CreateCatenaryFixed(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps);
+
+private:
+	static float FindParameterNewton(float TargetRatio);
+	static float FindParameterApproximate(float TargetRatio);
+	static float FindParameterFixed(float TargetRatio);
 
 };

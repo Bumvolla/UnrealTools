@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/SplineComponent.h"
 
+#include "SplineHelpers.h"
 #include "UtilityPolePreset.h"
 
 #include "SplineUtilityPole.generated.h"
@@ -25,10 +26,13 @@ protected:
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
+	void GenerateCables();
+
 	TMap<UChildActorComponent*, int32> PoleIndices;
 
 	UPROPERTY(VisibleAnywhere, Category = "Spline")
 	USplineComponent* Spline;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -48,5 +52,14 @@ public:
 
 	UPROPERTY(EditInstanceOnly, Category = "Generation")
 	bool autoGenerate = false;
+
+	UPROPERTY(EditInstanceOnly, Category = "Generation")
+	float Slack = 100;
+
+	UPROPERTY(EditInstanceOnly, Category = "Generation")
+	UStaticMesh* WireMesh;
+
+	UPROPERTY(EditInstanceOnly, Category = "Generation")
+	EAxis::Type WireMeshAxis;
 
 };
