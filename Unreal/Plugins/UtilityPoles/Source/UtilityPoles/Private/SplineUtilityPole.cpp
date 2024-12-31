@@ -39,44 +39,53 @@ void ASplineUtilityPole::GenerateCables()
 {
     TArray<UChildActorComponent*> Keys;
     PoleIndices.GetKeys(Keys);
-    static int32 PolesAmmount = Keys.Num();
+    int32 PolesAmount = Keys.Num();
+
+    if (PolesAmount < 2) return;
 
     TArray<AUtilityPolePreset*> CastedKeys;
-    CastedKeys.Reserve(PolesAmmount);
+    CastedKeys.Reserve(PolesAmount);
 
-    for (int32 i = 0; i < PolesAmmount - 1; i++)
+    for (int32 i = 0; i < Keys.Num(); i++)
     {
-        CastedKeys.Add(StaticCast<AUtilityPolePreset*>(Keys[i]));
+        if (AUtilityPolePreset* Pole = Cast<AUtilityPolePreset>(Keys[i]->GetChildActor()))
+        {
+            CastedKeys.Add(Pole);
+        }
     }
 
-    AUtilityPolePreset presetClass = StaticCast<AUtilityPolePreset>(PresetClass);
-    int32 transformsAmmount = presetClass.CableTargets.Num();
+    UE_LOG(LogTemp, Log, TEXT("%i"),CastedKeys.Num())
 
+    if (CastedKeys.Num() < 2) return;
 
-    for (int32 i = 0; i < transformsAmmount - 1; i++)
-    {
+    int32 TransformsAmount = CastedKeys[0]->CableTargets.Num();
 
-        TSet<FVector> CatenaryPoints;
-        CatenaryPoints.Empty();
+    // Pre-calculate all catenary points in parallel
+    TArray<TSet<FVector>> AllCatenaryPoints;
+    AllCatenaryPoints.SetNum(TransformsAmount);
 
-        for (int32 j = 0; j < PolesAmmount - 1; j++)
+    ParallelFor(TransformsAmount, [&](int32 i) {
+        for (int32 j = 0; j < CastedKeys.Num() - 1; j++)
         {
-            
-            if (j + 1 <= PolesAmmount)
-            {
-                CatenaryPoints.Append(UCatenaryHelpers::CreateCatenaryNewton(CastedKeys[j]->CableTargets[i], CastedKeys[j + 1]->CableTargets[i], Slack, SplineResolution));
-            }
-            else
-            {
-                CatenaryPoints.Append(UCatenaryHelpers::CreateCatenaryNewton(CastedKeys[j]->CableTargets[i], CastedKeys[0]->CableTargets[i], Slack, SplineResolution));
-            }
+            if (!CastedKeys[j] || !CastedKeys[j + 1]) continue;
 
+            AllCatenaryPoints[i].Append(UCatenaryHelpers::CreateCatenaryNewton(
+                CastedKeys[j]->CableTargets[i], //local to world space
+                CastedKeys[j + 1]->CableTargets[i], //local to world space
+                Slack,
+                SplineResolution));
+            UE_LOG(LogTemp, Log, TEXT("%i"), AllCatenaryPoints[i].Array().Num())
         }
+        });
+
+    // Create components on game thread
+    for (int64 i = 0; i < TransformsAmount; i++)
+    {
         USplineComponent* Wire = NewObject<USplineComponent>(this);
         Wire->RegisterComponent();
-        Wire->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
-        Wire->SetSplinePoints(CatenaryPoints.Array(), ESplineCoordinateSpace::World);
+        UE_LOG(LogTemp, Log, TEXT("%i"), AllCatenaryPoints[i].Array().Num())
+        Wire->SetSplinePoints(AllCatenaryPoints[i].Array(), ESplineCoordinateSpace::World);
 
         for (int k = 0; k < USplineHelpers::GetMeshesCountInSpline(Wire, WireMesh, WireMeshAxis); k++)
         {
@@ -151,4 +160,7 @@ void ASplineUtilityPole::Generate()
             }
         }
     }
+
+    GenerateCables();
+
 }

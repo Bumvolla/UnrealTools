@@ -60,6 +60,6 @@ public:
 	UStaticMesh* WireMesh;
 
 	UPROPERTY(EditInstanceOnly, Category = "Generation")
-	EAxis::Type WireMeshAxis;
+	TEnumAsByte<EAxis::Type> WireMeshAxis = EAxis::X;
 
 };
