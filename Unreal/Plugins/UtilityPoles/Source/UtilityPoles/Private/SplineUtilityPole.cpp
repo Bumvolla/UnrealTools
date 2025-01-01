@@ -37,15 +37,16 @@ void ASplineUtilityPole::OnConstruction(const FTransform& Transform)
 
 void ASplineUtilityPole::GenerateCables()
 {
+    if (!WireMesh) return;
+
     TArray<UChildActorComponent*> Keys;
     PoleIndices.GetKeys(Keys);
-    int32 PolesAmount = Keys.Num();
-
+    const int32 PolesAmount = Keys.Num();
     if (PolesAmount < 2) return;
 
+    // Cast poles and validate
     TArray<AUtilityPolePreset*> CastedKeys;
     CastedKeys.Reserve(PolesAmount);
-
     for (int32 i = 0; i < Keys.Num(); i++)
     {
         if (AUtilityPolePreset* Pole = Cast<AUtilityPolePreset>(Keys[i]->GetChildActor()))
@@ -54,8 +55,6 @@ void ASplineUtilityPole::GenerateCables()
         }
     }
 
-    UE_LOG(LogTemp, Log, TEXT("%i"),CastedKeys.Num())
-
     if (CastedKeys.Num() < 2) return;
 
     int32 TransformsAmount = CastedKeys[0]->CableTargets.Num();
@@ -63,18 +62,18 @@ void ASplineUtilityPole::GenerateCables()
     // Pre-calculate all catenary points in parallel
     TArray<TSet<FVector>> AllCatenaryPoints;
     AllCatenaryPoints.SetNum(TransformsAmount);
-
     ParallelFor(TransformsAmount, [&](int32 i) {
         for (int32 j = 0; j < CastedKeys.Num() - 1; j++)
         {
             if (!CastedKeys[j] || !CastedKeys[j + 1]) continue;
 
-            AllCatenaryPoints[i].Append(UCatenaryHelpers::CreateCatenaryNewton(
-                CastedKeys[j]->CableTargets[i], //local to world space
-                CastedKeys[j + 1]->CableTargets[i], //local to world space
+            TArray<FVector> CatenaryPoints = UCatenaryHelpers::CreateCatenaryNewton(
+                CastedKeys[j]->GetActorTransform().TransformPosition(localSpaceWireTargets[i]),
+                CastedKeys[j + 1]->GetActorTransform().TransformPosition(localSpaceWireTargets[i]),
                 Slack,
-                SplineResolution));
-            UE_LOG(LogTemp, Log, TEXT("%i"), AllCatenaryPoints[i].Array().Num())
+                SplineResolution);
+                CatenaryPoints.Pop();
+                AllCatenaryPoints[i].Append(CatenaryPoints);
         }
         });
 
@@ -98,13 +97,10 @@ void ASplineUtilityPole::GenerateCables()
             Wire->GetLocationAndTangentAtSplinePoint(k, StartPoint, StartTangent, ESplineCoordinateSpace::Local);
             Wire->GetLocationAndTangentAtSplinePoint(k + 1, EndPoint, EndTangent, ESplineCoordinateSpace::Local);
 
-            splineMesh->SetStartAndEnd(StartPoint, StartTangent,
-                EndPoint, EndTangent);
-
+            splineMesh->SetStartAndEnd(StartPoint, StartTangent, EndPoint, EndTangent);
             splineMesh->SetStaticMesh(WireMesh);
             splineMesh->SetForwardAxis(ESplineMeshAxis::X);
         }
-
     }
 }
 
