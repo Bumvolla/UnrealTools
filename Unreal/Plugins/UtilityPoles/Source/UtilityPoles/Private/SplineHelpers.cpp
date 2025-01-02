@@ -100,48 +100,6 @@ TArray<FVector> UCatenaryHelpers::CreateCatenaryNewton(const FVector& StartPoint
 	return Points;
 }
 
-TArray<FVector> UCatenaryHelpers::CreateCatenaryFast(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps)
-{
-
-	float TotalDistance = FVector::Dist(StartPoint, EndPoint);
-	float HorizontalDistance = FVector::Dist(
-		FVector(EndPoint.X, EndPoint.Y, StartPoint.Z),
-		StartPoint
-	);
-	float CableLength = TotalDistance + FMath::Max(0.0001f, Slack);
-	float HeightDiff = EndPoint.Z - StartPoint.Z;
-
-	float TargetRatio = FMath::Sqrt(
-		FMath::Pow(CableLength, 2.f) - FMath::Pow(HeightDiff, 2.f)
-	) / HorizontalDistance;
-
-	float Z = FindParameterApproximate(TargetRatio);
-
-	float A = HorizontalDistance / (2.0f * Z);
-	float P = (HorizontalDistance - A * FMath::Loge(
-		(CableLength + HeightDiff) / (CableLength - HeightDiff)
-	)) / 2.0f;
-	float Q = (EndPoint.Z + StartPoint.Z -
-		CableLength * FMath::Cosh(Z) / FMath::Sinh(Z)) / 2.0f;
-
-	TArray<FVector> Points;
-	Points.SetNum(Steps);
-
-	for (int32 i = 0; i < Steps; ++i)
-	{
-		float T = static_cast<float>(i) / (Steps - 1);
-
-		FVector Pos;
-		Pos.X = FMath::Lerp(StartPoint.X, EndPoint.X, T);
-		Pos.Y = FMath::Lerp(StartPoint.Y, EndPoint.Y, T);
-		Pos.Z = A * FMath::Cosh((T * HorizontalDistance - P) / A) + Q;
-
-		Points[i] = Pos;
-	}
-
-	return Points;
-}
-
 TArray<FVector> UCatenaryHelpers::CreateCatenaryFixed(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps)
 {
 
@@ -204,18 +162,6 @@ float UCatenaryHelpers::FindParameterNewton(float TargetRatio)
 	}
 
 	return Z;
-}
-
-float UCatenaryHelpers::FindParameterApproximate(float TargetRatio)
-{
-	// Quick approximation for different ranges
-	if (TargetRatio < 1.2f)
-		return 2.0f * (TargetRatio - 1.0f);
-
-	if (TargetRatio < 2.0f)
-		return 1.0f + FMath::Sqrt(6.0f * (TargetRatio - 1.0f));
-
-	return FMath::Loge(2.0f * TargetRatio);
 }
 
 float UCatenaryHelpers::FindParameterFixed(float TargetRatio)

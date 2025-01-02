@@ -45,17 +45,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Catenary")
 	static TArray<FVector> CreateCatenaryNewton(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps);
 
-	// Quick Approximation - Fastest but less accurate
-	UFUNCTION(BlueprintCallable, Category = "Catenary")
-	static TArray<FVector> CreateCatenaryFast(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps);
-
 	// Fixed-point iteration - Balance of speed and accuracy
 	UFUNCTION(BlueprintCallable, Category = "Catenary")
 	static TArray<FVector> CreateCatenaryFixed(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps);
 
 private:
 	static float FindParameterNewton(float TargetRatio);
-	static float FindParameterApproximate(float TargetRatio);
 	static float FindParameterFixed(float TargetRatio);
 
 };
