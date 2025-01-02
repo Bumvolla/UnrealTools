@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
 #include "Components/SplineComponent.h"
+#include "Components/SplineMeshComponent.h"
+#include "Components/ChildActorComponent.h"
 
 #include "SplineHelpers.h"
 #include "UtilityPolePreset.h"
@@ -28,18 +31,21 @@ protected:
 
 	void GenerateCables();
 
-	TMap<UChildActorComponent*, int32> PoleIndices;
 
 	UPROPERTY(VisibleAnywhere, Category = "Spline")
 	USplineComponent* Spline;
 
+private:
+
+	TMap<UChildActorComponent*, int32> PoleIndices;
+	TArray<USplineComponent*> AllWires;
+	TArray<USplineMeshComponent*> AllSplineMeshes;
+
+
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(CallInEditor, Category = "Generation")
 	void Generate();
-
 
 	UPROPERTY(EditInstanceOnly, Category = "Generation")
 	float DistanceBetweenObjects = 1000;
@@ -48,7 +54,7 @@ public:
 	TSubclassOf<AUtilityPolePreset> PresetClass;
 
 	UPROPERTY(EditInstanceOnly, Category = "Generation")
-	int32 SplineResolution = 10;
+	uint16 SplineResolution = 10;
 
 	UPROPERTY(EditInstanceOnly, Category = "Generation")
 	bool autoGenerate = false;
