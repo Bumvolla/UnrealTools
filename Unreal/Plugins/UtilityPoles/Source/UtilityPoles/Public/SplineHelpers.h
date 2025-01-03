@@ -32,6 +32,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spline Construction Script Tools")
 	static void GetSplineMeshStartAndEndByIteration(const int Index, const float Bound, const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spline Construction Script Tools")
+	static float GetDistanceBetweenSplinePoints(const USplineComponent* Spline, const int32& Point1, const int32& Point2);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spline Construction Script Tools")
+	static int GetMeshCountBewteenSplinePoints(const USplineComponent* Spline, const UStaticMesh* Mesh, EAxis::Type Axis, const int32& Point1, const int32& Point2);
+
 };
 
 UCLASS()

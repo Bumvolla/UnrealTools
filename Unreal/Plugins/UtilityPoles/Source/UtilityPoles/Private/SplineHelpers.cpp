@@ -44,7 +44,17 @@ float USplineHelpers::GetMeshLenght(const UStaticMesh* Mesh, EAxis::Type Axis)
 
 int USplineHelpers::GetMeshesCountInSpline(const USplineComponent* Spline, const UStaticMesh* Mesh, EAxis::Type Axis)
 {
-	return FMath::TruncToInt(Spline->GetSplineLength() / GetMeshLenght(Mesh, Axis) * 2);
+	return FMath::TruncToInt(Spline->GetSplineLength() / GetMeshLenght(Mesh, Axis));
+}
+
+float USplineHelpers::GetDistanceBetweenSplinePoints(const USplineComponent* Spline, const int32& Point1, const int32& Point2)
+{
+	return FMath::Abs(Spline->GetDistanceAlongSplineAtSplinePoint(Point1) - Spline->GetDistanceAlongSplineAtSplinePoint(Point2));
+}
+
+int USplineHelpers::GetMeshCountBewteenSplinePoints(const USplineComponent* Spline, const UStaticMesh* Mesh, EAxis::Type Axis, const int32& Point1, const int32& Point2)
+{
+	return FMath::TruncToInt(USplineHelpers::GetDistanceBetweenSplinePoints(Spline, Point1, Point2) / USplineHelpers::GetMeshLenght(Mesh, Axis));
 }
 
 void USplineHelpers::GetSplineMeshStartAndEndByIteration(const int32 Index, const float Bound, const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent)

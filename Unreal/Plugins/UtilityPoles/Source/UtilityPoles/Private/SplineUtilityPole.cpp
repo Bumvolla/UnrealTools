@@ -36,6 +36,7 @@ void ASplineUtilityPole::GenerateCables()
 
     // Setup
     if (!WireMesh) return;
+    float MeshLenght = USplineHelpers::GetMeshLenght(WireMesh, WireMeshAxis);
 
     TArray<UChildActorComponent*> Keys;
     PoleIndices.GetKeys(Keys);
@@ -53,6 +54,10 @@ void ASplineUtilityPole::GenerateCables()
     }
 
     uint16 CastedKeysAmm = CastedKeys.Num();
+
+    bool bSplineClosed = Spline->IsClosedLoop();
+
+    int wirePointsAmmount = bSplineClosed ? CastedKeysAmm * SplineResolution : (CastedKeysAmm - 1) * SplineResolution;
 
     if (CastedKeysAmm < 2) return;
 
@@ -85,7 +90,7 @@ void ASplineUtilityPole::GenerateCables()
             else
             {
                 bIsLast = true;
-                if (Spline->IsClosedLoop())
+                if (bSplineClosed)
                 {
                     nextPos = CastedKeys[0]->GetActorTransform();
                 }
@@ -135,10 +140,12 @@ void ASplineUtilityPole::GenerateCables()
         AllSplineMeshes.Empty();
     }
 
+
     // Create or reuse components and assign its values
     for (int16 i = 0; i < TransformsAmount; i++)
     {
         USplineComponent* Wire;
+
 
         if (AllWires[i])
         {
@@ -153,16 +160,38 @@ void ASplineUtilityPole::GenerateCables()
             AllWires.Add(Wire);
         }
 
+        Wire->SetVisibility(bShowSplines, false);
+
+        int32 SegmentStartPoint = 0;
+        int32 SegmentEndPoint = SplineResolution-1;
+
+        bool bisFirst = true;
+
         for (int32 k = 0; k < USplineHelpers::GetMeshesCountInSpline(Wire, WireMesh, WireMeshAxis); k++)
         {
+
             USplineMeshComponent* splineMesh = NewObject<USplineMeshComponent>(this);
             splineMesh->RegisterComponent();
             splineMesh->AttachToComponent(Wire, FAttachmentTransformRules::KeepRelativeTransform);
 
-            FVector StartPoint, StartTangent;
-            FVector EndPoint, EndTangent;
-            Wire->GetLocationAndTangentAtSplinePoint(k, StartPoint, StartTangent, ESplineCoordinateSpace::Local);
-            Wire->GetLocationAndTangentAtSplinePoint(k + 1, EndPoint, EndTangent, ESplineCoordinateSpace::Local);
+            FVector StartPoint, StartTangent, EndPoint, EndTangent;
+            USplineHelpers::GetSplineMeshStartAndEndByIteration(k, MeshLenght, Wire, StartPoint, StartTangent, EndPoint, EndTangent);
+
+            if (bisFirst)
+            {
+                Wire->GetLocationAndTangentAtSplinePoint(SegmentStartPoint, StartPoint, StartTangent, ESplineCoordinateSpace::Local);
+            }
+
+            bisFirst = false;
+
+            if (k > USplineHelpers::GetMeshCountBewteenSplinePoints(Wire, WireMesh, WireMeshAxis, SegmentStartPoint, SegmentEndPoint)-1)
+            {
+                Wire->GetLocationAndTangentAtSplinePoint(SegmentEndPoint, EndPoint, EndTangent, ESplineCoordinateSpace::Local);
+                SegmentStartPoint = SegmentEndPoint;
+                SegmentEndPoint += SplineResolution-1;
+                bisFirst = true;
+            }
+
 
             splineMesh->SetStartAndEnd(StartPoint, StartTangent, EndPoint, EndTangent);
             splineMesh->SetStaticMesh(WireMesh);

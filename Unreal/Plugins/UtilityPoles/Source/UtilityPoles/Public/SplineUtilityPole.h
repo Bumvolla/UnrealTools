@@ -68,4 +68,7 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "Generation")
 	TEnumAsByte<EAxis::Type> WireMeshAxis = EAxis::X;
 
+	UPROPERTY(EditInstanceOnly, Category = "Debug")
+	bool bShowSplines = false;
+
 };
