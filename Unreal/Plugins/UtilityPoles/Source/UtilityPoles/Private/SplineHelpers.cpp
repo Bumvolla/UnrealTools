@@ -57,10 +57,10 @@ int USplineHelpers::GetMeshCountBewteenSplinePoints(const USplineComponent* Spli
 	return FMath::TruncToInt(USplineHelpers::GetDistanceBetweenSplinePoints(Spline, Point1, Point2) / USplineHelpers::GetMeshLenght(Mesh, Axis));
 }
 
-void USplineHelpers::GetSplineMeshStartAndEndByIteration(const int32 Index, const float Bound, const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent)
+void USplineHelpers::GetSplineMeshStartAndEndByIteration(const int32 Index, const float Bound, const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent, const float& NewStartPosition)
 {
-	float StartDistance = Index * Bound;
-	float EndDistance = (Index + 1) * Bound;
+	float StartDistance = Index * Bound + NewStartPosition;
+	float EndDistance = (Index + 1) * Bound + NewStartPosition;
 
 	StartPosition = Spline->GetLocationAtDistanceAlongSpline(StartDistance, ESplineCoordinateSpace::Local);
 	StartTangent = Spline->GetTangentAtDistanceAlongSpline(StartDistance, ESplineCoordinateSpace::Local).GetClampedToSize(0, Bound);
