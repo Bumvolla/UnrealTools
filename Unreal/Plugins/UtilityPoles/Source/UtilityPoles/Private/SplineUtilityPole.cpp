@@ -164,10 +164,9 @@ void ASplineUtilityPole::GenerateCables()
 
         int32 SegmentStartPoint = 0;
         int32 SegmentEndPoint = SplineResolution-1;
+        int32 iAtSegment = 0;
 
-        bool bisFirst = true;
-
-        for (int32 k = 0; k < USplineHelpers::GetMeshesCountInSpline(Wire, WireMesh, WireMeshAxis); k++)
+        while (SegmentEndPoint < AllCatenaryPoints[i].Num())
         {
 
             USplineMeshComponent* splineMesh = NewObject<USplineMeshComponent>(this);
@@ -175,21 +174,23 @@ void ASplineUtilityPole::GenerateCables()
             splineMesh->AttachToComponent(Wire, FAttachmentTransformRules::KeepRelativeTransform);
 
             FVector StartPoint, StartTangent, EndPoint, EndTangent;
-            USplineHelpers::GetSplineMeshStartAndEndByIteration(k, MeshLenght, Wire, StartPoint, StartTangent, EndPoint, EndTangent);
+            USplineHelpers::GetSplineMeshStartAndEndByIteration(iAtSegment, MeshLenght, Wire, StartPoint, StartTangent, EndPoint, EndTangent, Wire->GetDistanceAlongSplineAtSplinePoint(SegmentStartPoint));
 
-            if (bisFirst)
+            if (iAtSegment == 0)
             {
                 Wire->GetLocationAndTangentAtSplinePoint(SegmentStartPoint, StartPoint, StartTangent, ESplineCoordinateSpace::Local);
             }
 
-            bisFirst = false;
-
-            if (k > USplineHelpers::GetMeshCountBewteenSplinePoints(Wire, WireMesh, WireMeshAxis, SegmentStartPoint, SegmentEndPoint)-1)
+            if (iAtSegment+1 > USplineHelpers::GetMeshCountBewteenSplinePoints(Wire, WireMesh, WireMeshAxis, SegmentStartPoint, SegmentEndPoint))
             {
                 Wire->GetLocationAndTangentAtSplinePoint(SegmentEndPoint, EndPoint, EndTangent, ESplineCoordinateSpace::Local);
                 SegmentStartPoint = SegmentEndPoint;
                 SegmentEndPoint += SplineResolution-1;
-                bisFirst = true;
+                iAtSegment = 0;
+            }
+            else 
+            {
+                iAtSegment++;
             }
 
 
