@@ -16,13 +16,6 @@ ASplineUtilityPole::ASplineUtilityPole()
 
 }
 
-// Called when the game starts or when spawned
-void ASplineUtilityPole::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
 void ASplineUtilityPole::GenerateWires()
 {
 
@@ -132,6 +125,7 @@ void ASplineUtilityPole::ReuseOrCreatePoles(TArray<FTransform> AllPoleTransforms
             NewPole->RegisterComponent();
             NewPole->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
             NewPole->SetRelativeTransform(Transform);
+
             if (PoleIndices.IsValidIndex(i))
                 PoleIndices[i] = NewPole;
             else
@@ -145,6 +139,9 @@ void ASplineUtilityPole::ReuseOrCreatePoles(TArray<FTransform> AllPoleTransforms
 
 void ASplineUtilityPole::Generate()
 {
+
+    Spline->SetClosedLoop(bIsClosedLoop);
+
     GeneratePoles();
     GenerateWires();
 }

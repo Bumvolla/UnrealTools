@@ -22,8 +22,6 @@ public:
 	ASplineUtilityPole();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	void GenerateWires();
 
@@ -33,7 +31,6 @@ protected:
 
 	void ReuseOrCreatePoles(TArray<FTransform> AllPoleTransforms);
 
-	UPROPERTY(VisibleAnywhere, Category = "Spline")
 	USplineComponent* Spline;
 
 private:
@@ -52,6 +49,9 @@ public:
 
 	UPROPERTY(EditInstanceOnly, Category = "Generation")
 	TSubclassOf<AUtilityPolePreset> PresetClass;
+
+	UPROPERTY(EditInstanceOnly, Category = "Generation")
+	bool bIsClosedLoop = false;
 
 	UPROPERTY(EditInstanceOnly, Category = "Debug")
 	bool bShowSplines = false;
