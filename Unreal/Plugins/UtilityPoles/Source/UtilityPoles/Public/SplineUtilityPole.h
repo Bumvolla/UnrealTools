@@ -5,17 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include "Components/SplineComponent.h"
-#include "Components/SplineMeshComponent.h"
 #include "Components/ChildActorComponent.h"
 
-#include "SplineHelpers.h"
+#include "CatenaryBase.h"
 #include "UtilityPolePreset.h"
 
 #include "SplineUtilityPole.generated.h"
 
 UCLASS()
-class UTILITYPOLES_API ASplineUtilityPole : public AActor
+class UTILITYPOLES_API ASplineUtilityPole : public ACatenaryBase
 {
 	GENERATED_BODY()
 	
@@ -27,46 +25,33 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void OnConstruction(const FTransform& Transform) override;
+	void GenerateWires();
 
-	void GenerateCables();
+	void GeneratePoles();
 
+	void RemoveExcesPoles(int32 NeededPoleCount);
+
+	void ReuseOrCreatePoles(TArray<FTransform> AllPoleTransforms);
 
 	UPROPERTY(VisibleAnywhere, Category = "Spline")
 	USplineComponent* Spline;
 
 private:
 
-	TMap<UChildActorComponent*, int32> PoleIndices;
-	TArray<USplineComponent*> AllWires;
-	TArray<USplineMeshComponent*> AllSplineMeshes;
+	TArray<UChildActorComponent*> PoleIndices;
 
+	
 
 public:	
 
 	UFUNCTION(CallInEditor, Category = "Generation")
-	void Generate();
+	virtual void Generate() override;
 
 	UPROPERTY(EditInstanceOnly, Category = "Generation")
 	float DistanceBetweenObjects = 1000;
 
 	UPROPERTY(EditInstanceOnly, Category = "Generation")
 	TSubclassOf<AUtilityPolePreset> PresetClass;
-
-	UPROPERTY(EditInstanceOnly, Category = "Generation")
-	uint16 SplineResolution = 10;
-
-	UPROPERTY(EditInstanceOnly, Category = "Generation")
-	bool autoGenerate = false;
-
-	UPROPERTY(EditInstanceOnly, Category = "Generation")
-	float Slack = 100;
-
-	UPROPERTY(EditInstanceOnly, Category = "Generation")
-	UStaticMesh* WireMesh;
-
-	UPROPERTY(EditInstanceOnly, Category = "Generation")
-	TEnumAsByte<EAxis::Type> WireMeshAxis = EAxis::X;
 
 	UPROPERTY(EditInstanceOnly, Category = "Debug")
 	bool bShowSplines = false;

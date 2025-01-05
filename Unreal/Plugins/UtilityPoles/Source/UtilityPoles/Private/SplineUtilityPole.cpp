@@ -1,13 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "SplineUtilityPole.h"
+#include "UtilityPoles.h"
 
 // Sets default values
 ASplineUtilityPole::ASplineUtilityPole()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+    
 
 	Spline = CreateDefaultSubobject<USplineComponent>(TEXT("Spline"));
 
@@ -24,233 +23,128 @@ void ASplineUtilityPole::BeginPlay()
 	
 }
 
-void ASplineUtilityPole::OnConstruction(const FTransform& Transform)
-{
-    Super::OnConstruction(Transform);
-
-    if (autoGenerate) Generate();
-}
-
-void ASplineUtilityPole::GenerateCables()
+void ASplineUtilityPole::GenerateWires()
 {
 
-    // Setup
+    // Mesh check
     if (!WireMesh) return;
-    float MeshLenght = USplineHelpers::GetMeshLenght(WireMesh, WireMeshAxis);
+    SetMeshLenght();
 
-    TArray<UChildActorComponent*> Keys;
-    PoleIndices.GetKeys(Keys);
-    const int32 PolesAmount = Keys.Num();
+    // Poles setup
+    const int32 PolesAmount = PoleIndices.Num();
     if (PolesAmount < 2) return;
-
     TArray<AUtilityPolePreset*> CastedKeys;
     CastedKeys.Reserve(PolesAmount);
-    for (int32 i = 0; i < Keys.Num(); i++)
+    for (int32 i = 0; i < PolesAmount; i++)
     {
-        if (AUtilityPolePreset* Pole = Cast<AUtilityPolePreset>(Keys[i]->GetChildActor()))
+        if (AUtilityPolePreset* Pole = Cast<AUtilityPolePreset>(PoleIndices[i]->GetChildActor()))
         {
             CastedKeys.Add(Pole);
+            UE_LOG(LogUtilityPoles, Log, TEXT("Cast suceed"));
         }
     }
+    if (CastedKeys.Num() < 2) return;
 
-    uint16 CastedKeysAmm = CastedKeys.Num();
+    // Retrieves how many connections the current pole have
+    const uint8 TransformsAmount = CastedKeys[0]->WireTargets.Num();
 
-    bool bSplineClosed = Spline->IsClosedLoop();
-
-    int wirePointsAmmount = bSplineClosed ? CastedKeysAmm * SplineResolution : (CastedKeysAmm - 1) * SplineResolution;
-
-    if (CastedKeysAmm < 2) return;
-
-    TArray<FVector> localSpaceWireTargets = CastedKeys[0]->CableTargets;
-    uint8 TransformsAmount = localSpaceWireTargets.Num();
-
-
-    // Pre-calculate all catenary points in parallel
-    TArray<TSet<FVector>> AllCatenaryPoints;
-    AllCatenaryPoints.SetNum(TransformsAmount);
-
-
-    ParallelFor(TransformsAmount, [&](int32 i) {
-        for (int32 j = 0; j < CastedKeysAmm; j++)
-        {
-            bool bIsLast = false;
-
-            FTransform currentPos = CastedKeys[j]->GetActorTransform();
-            FTransform nextPos;
-
-            if (CastedKeys.IsValidIndex(j+1))
-            {
-                nextPos = CastedKeys[j + 1]->GetActorTransform();
-
-                if (!CastedKeys.IsValidIndex(j + 2))
-                {
-                    bIsLast = true;
-                }
-            }
-            else
-            {
-                bIsLast = true;
-                if (bSplineClosed)
-                {
-                    nextPos = CastedKeys[0]->GetActorTransform();
-                }
-                else break;
-            }
-
-            TArray<FVector> CatenaryPoints = UCatenaryHelpers::CreateCatenaryNewton(
-                currentPos.TransformPosition(localSpaceWireTargets[i]),
-                nextPos.TransformPosition(localSpaceWireTargets[i]),
-                Slack,
-                SplineResolution);
-
-            if (!bIsLast)
-            {
-                CatenaryPoints.Pop();
-                AllCatenaryPoints[i].Append(CatenaryPoints);
-            }
-            else
-            {
-                AllCatenaryPoints[i].Append(CatenaryPoints);
-                break;
-            }
-        }
-        });
-
-
-
+    UE_LOG(LogUtilityPoles, Log, TEXT("%i"), TransformsAmount);
     //Handles exces previously generated splines 
-    int16 wiresAmmount = AllWires.Num();
-    if (TransformsAmount < wiresAmmount)
-    {
-        for (int16 i = TransformsAmount; i < wiresAmmount; i++)
-        {
-            AllWires[i]->DestroyComponent();
-        }
+    RemoveExcesSplines(TransformsAmount);
 
-    }
-    AllWires.SetNum(TransformsAmount);
+    // Create or reuse spline components
+    ReuseOrCreateSplines();
 
     //Handles destruction of all previously generated spline meshes
-    if (!AllSplineMeshes.IsEmpty())
+    RemoveSplineMeshes();
+
+    //Creates and return an array that contains all catenary points for each needed wire
+    TArray<TArray<FVector>> AllCatenaryPoints = CalculateCatenariesParalel(CastedKeys, Spline->IsClosedLoop());
+    if (AllCatenaryPoints.IsEmpty()) return;
+
+    //Assign spline points
+    for (int32 i = 0; i < AllWires.Num(); i++)
     {
-        for (USplineMeshComponent* splineMesh : AllSplineMeshes)
-        {
-            splineMesh->DestroyComponent();
-        }
-        AllSplineMeshes.Empty();
+        AllWires[i]->SetSplinePoints(AllCatenaryPoints[i], ESplineCoordinateSpace::Local);
     }
 
-
-    // Create or reuse components and assign its values
-    for (int16 i = 0; i < TransformsAmount; i++)
+    // Constructs spline meshes along each spline
+    for (int32 i = 0; i < AllWires.Num();i++)
     {
-        USplineComponent* Wire;
+        ConstructSplineMeshesAlongSplines(AllWires[i]);
+    }
 
+}
 
-        if (AllWires[i])
+void ASplineUtilityPole::GeneratePoles()
+{
+    // Generate transforms
+    const TArray<FTransform> Transforms = USplineHelpers::GetTransformPointsAlongSpline(Spline, DistanceBetweenObjects);
+
+    // Remove exces poles
+    RemoveExcesPoles(Transforms.Num());
+
+    // Create or reuse poles and assign its transforms
+    ReuseOrCreatePoles(Transforms);
+
+}
+
+void ASplineUtilityPole::RemoveExcesPoles(int32 NeededPoleCount)
+{
+    if (NeededPoleCount < PoleIndices.Num())
+    {
+        TArray<UActorComponent*> ComponentsToDestroy;
+        for (int32 i = NeededPoleCount; i < PoleIndices.Num(); i++)
         {
-            Wire = AllWires[i];
-            Wire->SetSplinePoints(AllCatenaryPoints[i].Array(), ESplineCoordinateSpace::World);
+            ComponentsToDestroy.Add(PoleIndices[i]);
         }
-        else
+
+        PoleIndices.SetNum(NeededPoleCount);
+
+        for (UActorComponent* Component : ComponentsToDestroy)
         {
-            Wire = NewObject<USplineComponent>(this);
-            Wire->RegisterComponent();
-            Wire->SetSplinePoints(AllCatenaryPoints[i].Array(), ESplineCoordinateSpace::World);
-            AllWires.Add(Wire);
-        }
-
-        Wire->SetVisibility(bShowSplines, false);
-
-        int32 SegmentStartPoint = 0;
-        int32 SegmentEndPoint = SplineResolution-1;
-        int32 iAtSegment = 0;
-
-        while (SegmentEndPoint < AllCatenaryPoints[i].Num())
-        {
-
-            USplineMeshComponent* splineMesh = NewObject<USplineMeshComponent>(this);
-            splineMesh->RegisterComponent();
-            splineMesh->AttachToComponent(Wire, FAttachmentTransformRules::KeepRelativeTransform);
-
-            FVector StartPoint, StartTangent, EndPoint, EndTangent;
-            USplineHelpers::GetSplineMeshStartAndEndByIteration(iAtSegment, MeshLenght, Wire, StartPoint, StartTangent, EndPoint, EndTangent, Wire->GetDistanceAlongSplineAtSplinePoint(SegmentStartPoint));
-
-            if (iAtSegment == 0)
+            if (Component)
             {
-                Wire->GetLocationAndTangentAtSplinePoint(SegmentStartPoint, StartPoint, StartTangent, ESplineCoordinateSpace::Local);
+                Component->DestroyComponent();
             }
-
-            if (iAtSegment+1 > USplineHelpers::GetMeshCountBewteenSplinePoints(Wire, WireMesh, WireMeshAxis, SegmentStartPoint, SegmentEndPoint))
-            {
-                Wire->GetLocationAndTangentAtSplinePoint(SegmentEndPoint, EndPoint, EndTangent, ESplineCoordinateSpace::Local);
-                SegmentStartPoint = SegmentEndPoint;
-                SegmentEndPoint += SplineResolution-1;
-                iAtSegment = 0;
-            }
-            else 
-            {
-                iAtSegment++;
-            }
-
-
-            splineMesh->SetStartAndEnd(StartPoint, StartTangent, EndPoint, EndTangent);
-            splineMesh->SetStaticMesh(WireMesh);
-            splineMesh->SetForwardAxis(ESplineMeshAxis::X);
-
-            AllSplineMeshes.Add(splineMesh);
         }
     }
 }
 
-void ASplineUtilityPole::Generate()
+void ASplineUtilityPole::ReuseOrCreatePoles(TArray<FTransform> AllPoleTransforms)
 {
-    // Setup
-    TArray<FTransform> Transforms = USplineHelpers::GetTransformPointsAlongSpline(Spline, DistanceBetweenObjects);
-    TArray<UChildActorComponent*> Keys;
-    PoleIndices.GetKeys(Keys);
+    int32 i = 0;
 
-    const int32 ExistingPoleCount = PoleIndices.Num();
-    const int32 NeededPoleCount = Transforms.Num();
-
-    // Handle exces poles
-    if (NeededPoleCount < ExistingPoleCount)
+    for (const FTransform& Transform : AllPoleTransforms)
     {
-        for (int32 i = NeededPoleCount; i < ExistingPoleCount; i++)
-        {
-            uint32 KeyHash = GetTypeHash(Keys[i]);
-            UActorComponent* Component = Keys[i];
-            PoleIndices.RemoveByHash(KeyHash, Keys[i]);
-            Component->DestroyComponent();
-        }
-    }
 
-    // Create or reuse components and assign its values
-    for (int32 Iteration = 0; Iteration < NeededPoleCount; Iteration++)
-    {
-        const FTransform& Transform = Transforms[Iteration];
-        UChildActorComponent* ExistingPole = Iteration < Keys.Num() ? Keys[Iteration] : nullptr;
-
+        UChildActorComponent* ExistingPole = i < PoleIndices.Num() ? PoleIndices[i] : nullptr;
 
         if (ExistingPole)
         {
             ExistingPole->SetRelativeTransform(Transform);
-            PoleIndices[ExistingPole] = Iteration;
         }
         else
         {
-            FString PoleName = FString::Printf(TEXT("UtilityPole%i"), Iteration);
+            FString PoleName = FString::Printf(TEXT("UtilityPole%i"), i);
             UChildActorComponent* NewPole = NewObject<UChildActorComponent>(this, *PoleName);
             NewPole->SetChildActorClass(PresetClass);
             NewPole->RegisterComponent();
             NewPole->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
             NewPole->SetRelativeTransform(Transform);
-            PoleIndices.Add(NewPole, Iteration);
-
+            if (PoleIndices.IsValidIndex(i))
+                PoleIndices[i] = NewPole;
+            else
+                PoleIndices.Add(NewPole);
         }
+
+        i++;
+
     }
+}
 
-    // On finish generate wires
-    GenerateCables();
-
+void ASplineUtilityPole::Generate()
+{
+    GeneratePoles();
+    GenerateWires();
 }

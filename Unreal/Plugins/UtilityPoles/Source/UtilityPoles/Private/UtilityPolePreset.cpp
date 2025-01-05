@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "UtilityPolePreset.h"
 #include "Editor.h"
 
@@ -65,11 +64,11 @@ void AUtilityPolePreset::InstancePropertiesToClassDefaults()
         PoleMeshProperty->CopyCompleteValue(DestAddr, SourceAddr);
     }
 
-    if (FProperty* CableTargetsProperty = Class->FindPropertyByName(TEXT("CableTargets")))
+    if (FProperty* WireTargetsProperty = Class->FindPropertyByName(TEXT("WireTargets")))
     {
-        void* SourceAddr = CableTargetsProperty->ContainerPtrToValuePtr<void>(this);
-        void* DestAddr = CableTargetsProperty->ContainerPtrToValuePtr<void>(CDO);
-        CableTargetsProperty->CopyCompleteValue(DestAddr, SourceAddr);
+        void* SourceAddr = WireTargetsProperty->ContainerPtrToValuePtr<void>(this);
+        void* DestAddr = WireTargetsProperty->ContainerPtrToValuePtr<void>(CDO);
+        WireTargetsProperty->CopyCompleteValue(DestAddr, SourceAddr);
     }
 
     CDO->PostEditChange();

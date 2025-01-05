@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "SplineHelpers.h"
 
 TArray<FTransform> USplineHelpers::GetTransformPointsAlongSpline(const USplineComponent* spline, const float distBetweenObjects)
@@ -76,21 +75,21 @@ TArray<FVector> UCatenaryHelpers::CreateCatenaryNewton(const FVector& StartPoint
 		FVector(EndPoint.X, EndPoint.Y, StartPoint.Z),
 		StartPoint
 	);
-	float CableLength = TotalDistance + FMath::Max(0.0001f, Slack);
+	float WireLength = TotalDistance + FMath::Max(0.0001f, Slack);
 	float HeightDiff = EndPoint.Z - StartPoint.Z;
 
 	float TargetRatio = FMath::Sqrt(
-		FMath::Pow(CableLength, 2.f) - FMath::Pow(HeightDiff, 2.f)
+		FMath::Pow(WireLength, 2.f) - FMath::Pow(HeightDiff, 2.f)
 	) / HorizontalDistance;
 
 	float Z = FindParameterNewton(TargetRatio);
 
 	float A = HorizontalDistance / (2.0f * Z);
 	float P = (HorizontalDistance - A * FMath::Loge(
-		(CableLength + HeightDiff) / (CableLength - HeightDiff)
+		(WireLength + HeightDiff) / (WireLength - HeightDiff)
 	)) / 2.0f;
 	float Q = (EndPoint.Z + StartPoint.Z -
-		CableLength * FMath::Cosh(Z) / FMath::Sinh(Z)) / 2.0f;
+		WireLength * FMath::Cosh(Z) / FMath::Sinh(Z)) / 2.0f;
 
 	TArray<FVector> Points;
 	Points.SetNum(Steps);
@@ -119,21 +118,21 @@ TArray<FVector> UCatenaryHelpers::CreateCatenaryFixed(const FVector& StartPoint,
 		FVector(EndPoint.X, EndPoint.Y, StartPoint.Z),
 		StartPoint
 	);
-	float CableLength = TotalDistance + FMath::Max(0.0001f, Slack);
+	float WireLength = TotalDistance + FMath::Max(0.0001f, Slack);
 	float HeightDiff = EndPoint.Z - StartPoint.Z;
 
 	float TargetRatio = FMath::Sqrt(
-		FMath::Pow(CableLength, 2.f) - FMath::Pow(HeightDiff, 2.f)
+		FMath::Pow(WireLength, 2.f) - FMath::Pow(HeightDiff, 2.f)
 	) / HorizontalDistance;
 
 	float Z = FindParameterFixed(TargetRatio);
 
 	float A = HorizontalDistance / (2.0f * Z);
 	float P = (HorizontalDistance - A * FMath::Loge(
-		(CableLength + HeightDiff) / (CableLength - HeightDiff)
+		(WireLength + HeightDiff) / (WireLength - HeightDiff)
 	)) / 2.0f;
 	float Q = (EndPoint.Z + StartPoint.Z -
-		CableLength * FMath::Cosh(Z) / FMath::Sinh(Z)) / 2.0f;
+		WireLength * FMath::Cosh(Z) / FMath::Sinh(Z)) / 2.0f;
 
 	TArray<FVector> Points;
 	Points.SetNum(Steps);

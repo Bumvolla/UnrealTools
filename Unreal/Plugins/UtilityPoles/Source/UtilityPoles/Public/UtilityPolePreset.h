@@ -34,7 +34,7 @@ public:
 	UStaticMesh* PoleMesh;
 
 	UPROPERTY(EditAnywhere, meta = (MakeEditWidget = true), Category = "Config")
-	TArray<FVector> CableTargets;
+	TArray<FVector> WireTargets;
 
 
 #if WITH_EDITOR
