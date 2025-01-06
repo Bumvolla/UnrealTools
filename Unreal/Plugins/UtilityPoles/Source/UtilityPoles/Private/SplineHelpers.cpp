@@ -20,6 +20,9 @@ TArray<FTransform> USplineHelpers::GetTransformPointsAlongSpline(const USplineCo
 
 float USplineHelpers::GetMeshLenght(const UStaticMesh* Mesh, EAxis::Type Axis)
 {
+
+	if (!Mesh) return 0.0;
+
 	FVector MinBoundingBox = Mesh->GetBoundingBox().Min;
 	FVector MaxBoundingBox = Mesh->GetBoundingBox().Max;
 
