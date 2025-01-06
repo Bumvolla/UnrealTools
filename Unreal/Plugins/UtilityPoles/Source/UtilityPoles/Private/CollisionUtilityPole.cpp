@@ -16,18 +16,25 @@ ACollisionUtilityPole::ACollisionUtilityPole()
 
 }
 
-TArray<ACollisionUtilityPole*> ACollisionUtilityPole::GetUtilityPolesInCollision()
+TArray<AUtilityPolePreset*> ACollisionUtilityPole::GetUtilityPolesInCollision()
 {
-    TSet<AActor*> ActorsInColision;
-    Collision->GetOverlappingActors(ActorsInColision, StaticClass());
-
-    TArray<ACollisionUtilityPole*> PolesInColision;
-
-    if (!ActorsInColision.IsEmpty())
+    TArray<AUtilityPolePreset*> PolesInColision;
+    if (Collision)
     {
-        for (AActor* Actor : ActorsInColision)
+        TArray<AActor*> OverlappingActors;
+        Collision->GetOverlappingActors(OverlappingActors);
+
+        for (AActor* Actor : OverlappingActors)
         {
-            PolesInColision.Add(Cast<ACollisionUtilityPole>(Actor));
+            if (AUtilityPolePreset* newPole = Cast<AUtilityPolePreset>(Actor))
+            {
+                PolesInColision.Add(newPole);
+            }
+        }
+
+        if (PolesInColision.Contains(Cast<AUtilityPolePreset>(Pole->GetChildActor())))
+        {
+            PolesInColision.Remove(Cast<AUtilityPolePreset>(Pole->GetChildActor()));
         }
     }
     return PolesInColision;
@@ -66,16 +73,13 @@ void ACollisionUtilityPole::Generate()
 
     TArray<TArray<FVector>> AllCatenaryPoints;
 
-
-    for (int32 i = 0; i < UtilityPolesInColision.Num(); i++)
+    for (AUtilityPolePreset* OverlappingPole : UtilityPolesInColision)
     {
-        if (!ConectedUtilityPoles.Contains(UtilityPolesInColision[i]))
+        if (!ConectedUtilityPoles.Contains(OverlappingPole))
         {
-            AUtilityPolePreset* PoleToConect = Cast<AUtilityPolePreset>(UtilityPolesInColision[i]->Pole->GetChildActor());
-            AllCatenaryPoints.Append(CalculateCatenariesParalel({ CastedPole, PoleToConect }));
-            ConectedUtilityPoles.Add(UtilityPolesInColision[i]);
+            AllCatenaryPoints.Append(CalculateCatenariesParalel({ CastedPole, OverlappingPole }));
+            ConectedUtilityPoles.Add(OverlappingPole);
         }
-
     }
 
 

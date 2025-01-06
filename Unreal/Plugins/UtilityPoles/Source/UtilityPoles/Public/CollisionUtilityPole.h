@@ -25,10 +25,10 @@ protected:
 	TArray<FVector> WireTargets;
 
 	UPROPERTY(EditInstanceOnly, Category = "Si")
-	TArray<ACollisionUtilityPole*> ConectedUtilityPoles;
-	TArray<ACollisionUtilityPole*> UtilityPolesInColision;
+	TArray<AUtilityPolePreset*> ConectedUtilityPoles;
+	TArray<AUtilityPolePreset*> UtilityPolesInColision;
 
-	TArray<ACollisionUtilityPole*> GetUtilityPolesInCollision();
+	TArray<AUtilityPolePreset*> GetUtilityPolesInCollision();
 
 private:
 
