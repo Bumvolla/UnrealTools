@@ -7,44 +7,44 @@ ACollisionUtilityPole::ACollisionUtilityPole()
 {
     Pole = CreateDefaultSubobject<UChildActorComponent>(TEXT("Pole"));
     Pole->RegisterComponent();
-    Pole->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
     SetRootComponent(Pole);
 
     Collision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
     Collision->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    SetSphereRadius();
 
 }
 
-TArray<AUtilityPolePreset*> ACollisionUtilityPole::GetUtilityPolesInCollision()
+TArray<ACollisionUtilityPole*> ACollisionUtilityPole::GetUtilityPolesInCollision()
 {
-    TArray<AUtilityPolePreset*> PolesInColision;
+    TSet<ACollisionUtilityPole*> PolesInColision;
     if (Collision)
     {
-        TArray<AActor*> OverlappingActors;
-        Collision->GetOverlappingActors(OverlappingActors);
-
+        TArray<AActor*> OverlappingActors = UEditorHelpers::GetObjectsInRadius(GetTransformsCenter(), SphereSize);
         for (AActor* Actor : OverlappingActors)
         {
-            if (AUtilityPolePreset* newPole = Cast<AUtilityPolePreset>(Actor))
+            if (ACollisionUtilityPole* newPole = Cast<ACollisionUtilityPole>(Actor))
             {
-                PolesInColision.Add(newPole);
+                if (newPole != this)
+                {
+                    PolesInColision.Add(newPole);
+                }
             }
         }
-
-        if (PolesInColision.Contains(Cast<AUtilityPolePreset>(Pole->GetChildActor())))
-        {
-            PolesInColision.Remove(Cast<AUtilityPolePreset>(Pole->GetChildActor()));
-        }
     }
-    return PolesInColision;
+    TArray<ACollisionUtilityPole*> SetOfPoles = PolesInColision.Array();
+    if (!SetOfPoles.IsEmpty())
+    {
+        UE_LOG(LogTemp, Log, TEXT("UWU"))
+    }
+    return SetOfPoles;
 }
 
-void ACollisionUtilityPole::SetSphereRadius()
+FVector ACollisionUtilityPole::GetTransformsCenter()
 {
+    FVector Center = FVector::ZeroVector;
+
     if (!WireTargets.IsEmpty())
     {
-        FVector Center = FVector::ZeroVector;
 
         for (const FVector& Target : WireTargets)
         {
@@ -53,10 +53,9 @@ void ACollisionUtilityPole::SetSphereRadius()
 
         Center /= WireTargets.Num();
 
-        Collision->SetRelativeLocation(Center);
     }
 
-    Collision->SetSphereRadius(SphereSize);
+    return Center;
 }
 
 void ACollisionUtilityPole::Generate()
@@ -67,21 +66,23 @@ void ACollisionUtilityPole::Generate()
     if (CastedPole)
         WireTargets = CastedPole->WireTargets;
 
-    SetSphereRadius();
+    Collision->SetRelativeLocation(GetTransformsCenter());
+    Collision->SetSphereRadius(SphereSize);
 
     UtilityPolesInColision = GetUtilityPolesInCollision();
 
+    if (UtilityPolesInColision.Num() < 1) return;
+
     TArray<TArray<FVector>> AllCatenaryPoints;
 
-    for (AUtilityPolePreset* OverlappingPole : UtilityPolesInColision)
+    for (ACollisionUtilityPole* OverlappingPole : UtilityPolesInColision)
     {
         if (!ConectedUtilityPoles.Contains(OverlappingPole))
         {
-            AllCatenaryPoints.Append(CalculateCatenariesParalel({ CastedPole, OverlappingPole }));
+            AllCatenaryPoints.Append(CalculateCatenariesParalel({ CastedPole, Cast<AUtilityPolePreset>(OverlappingPole->Pole->GetChildActor()) }));
             ConectedUtilityPoles.Add(OverlappingPole);
         }
     }
-
 
     if (ConectedUtilityPoles.IsEmpty()) return;
 

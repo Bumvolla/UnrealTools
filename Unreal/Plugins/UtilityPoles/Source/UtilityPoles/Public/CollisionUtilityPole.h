@@ -25,17 +25,17 @@ protected:
 	TArray<FVector> WireTargets;
 
 	UPROPERTY(EditInstanceOnly, Category = "Si")
-	TArray<AUtilityPolePreset*> ConectedUtilityPoles;
-	TArray<AUtilityPolePreset*> UtilityPolesInColision;
+	TArray<ACollisionUtilityPole*> ConectedUtilityPoles;
+	TArray<ACollisionUtilityPole*> UtilityPolesInColision;
 
-	TArray<AUtilityPolePreset*> GetUtilityPolesInCollision();
+	TArray<ACollisionUtilityPole*> GetUtilityPolesInCollision();
+
+	FVector GetTransformsCenter();
 
 private:
 
 	USphereComponent* Collision;
 	UChildActorComponent* Pole;
-
-	void SetSphereRadius();
 
 public:
 
