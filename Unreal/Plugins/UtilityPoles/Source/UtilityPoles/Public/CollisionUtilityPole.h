@@ -24,6 +24,12 @@ protected:
 	AUtilityPolePreset* CastedPole;
 	TArray<FVector> WireTargets;
 
+	UPROPERTY(EditInstanceOnly, Category = "Si")
+	TArray<ACollisionUtilityPole*> ConectedUtilityPoles;
+	TArray<ACollisionUtilityPole*> UtilityPolesInColision;
+
+	TArray<ACollisionUtilityPole*> GetUtilityPolesInCollision();
+
 private:
 
 	USphereComponent* Collision;
