@@ -14,6 +14,16 @@ ACollisionUtilityPole::ACollisionUtilityPole()
 
 }
 
+void ACollisionUtilityPole::OnConstruction(const FTransform& Transform)
+{
+    if (autoGenerate) Generate();
+    else
+    {
+        Collision->SetRelativeLocation(GetTransformsCenter());
+        Collision->SetSphereRadius(SphereSize);
+    }
+}
+
 TArray<ACollisionUtilityPole*> ACollisionUtilityPole::GetUtilityPolesInCollision()
 {
     TSet<ACollisionUtilityPole*> PolesInColision;
@@ -24,9 +34,14 @@ TArray<ACollisionUtilityPole*> ACollisionUtilityPole::GetUtilityPolesInCollision
         {
             if (ACollisionUtilityPole* newPole = Cast<ACollisionUtilityPole>(Actor))
             {
-                if (newPole != this)
+                
+                if (FVector::Dist(newPole->GetActorLocation(), GetActorLocation()) < SphereSize)
                 {
-                    PolesInColision.Add(newPole);
+                    if (newPole != this)
+                    {
+                        PolesInColision.Add(newPole);
+                    }
+
                 }
             }
         }
@@ -60,6 +75,9 @@ FVector ACollisionUtilityPole::GetTransformsCenter()
 
 void ACollisionUtilityPole::Generate()
 {
+
+    ConectedUtilityPoles.Empty();
+
     Pole->SetChildActorClass(PresetClass);
     CastedPole = Cast<AUtilityPolePreset>(Pole->GetChildActor());
 
@@ -71,28 +89,23 @@ void ACollisionUtilityPole::Generate()
 
     UtilityPolesInColision = GetUtilityPolesInCollision();
 
-    if (UtilityPolesInColision.Num() < 1) return;
-
+    if (UtilityPolesInColision.IsEmpty())
+    {
+        RemoveSplineMeshes();
+        return;
+    }
     TArray<TArray<FVector>> AllCatenaryPoints;
 
     for (ACollisionUtilityPole* OverlappingPole : UtilityPolesInColision)
     {
-        if (!ConectedUtilityPoles.Contains(OverlappingPole))
+        if (OverlappingPole->CastedPole)
         {
-            AllCatenaryPoints.Append(CalculateCatenariesParalel({ CastedPole, Cast<AUtilityPolePreset>(OverlappingPole->Pole->GetChildActor()) }));
+            AllCatenaryPoints.Append(CalculateCatenariesParalel({ CastedPole, OverlappingPole->CastedPole}));
             ConectedUtilityPoles.Add(OverlappingPole);
         }
     }
 
     if (ConectedUtilityPoles.IsEmpty()) return;
-
-    for (int32 i = 0; i < ConectedUtilityPoles.Num(); i++)
-    {
-        if (!UtilityPolesInColision.Contains(ConectedUtilityPoles[i]))
-        {
-            ConectedUtilityPoles.RemoveAt(i);
-        }
-    }
 
     RemoveExcesSplines(CastedPole->WireTargets.Num()*ConectedUtilityPoles.Num());
 

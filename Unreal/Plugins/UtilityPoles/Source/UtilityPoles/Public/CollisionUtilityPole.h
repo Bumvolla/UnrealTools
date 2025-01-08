@@ -21,6 +21,8 @@ public:
 
 protected:
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 	AUtilityPolePreset* CastedPole;
 	TArray<FVector> WireTargets;
 

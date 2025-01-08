@@ -39,7 +39,6 @@ void ACatenaryBase::RemoveExcesSplines(int32 NeededSplines)
 
     }
     AllWires.SetNum(NeededSplines);
-    UE_LOG(LogUtilityPoles, Log, TEXT("Wires ammount set to %i"), NeededSplines);
 }
 
 void ACatenaryBase::RemoveSplineMeshes()
@@ -130,10 +129,11 @@ TArray<FVector> ACatenaryBase::CalculateSingleCatenary(TArray<FVector> Conection
 
 }
 
-TArray<TArray<FVector>> ACatenaryBase::CalculateCatenariesParalel(TArray<AUtilityPolePreset*> ConectionPoints, bool bIsClosedLoop)
+TArray<TArray<FVector>> ACatenaryBase::CalculateCatenariesParalel(const TArray<AUtilityPolePreset*>& ConectionPoints, bool bIsClosedLoop)
 {
 
     TArray<TArray<FVector>> AllCatenaryPoints;
+
 
     if (ConectionPoints.IsEmpty())
     {
@@ -179,6 +179,8 @@ TArray<TArray<FVector>> ACatenaryBase::CalculateCatenariesParalel(TArray<AUtilit
                 nextPos.TransformPosition(localSpaceWireTargets[i]),
                 Slack,
                 SplineResolution);
+
+            if (CatenaryPoints.IsEmpty()) return;
 
             if (!bIsLast)
             {

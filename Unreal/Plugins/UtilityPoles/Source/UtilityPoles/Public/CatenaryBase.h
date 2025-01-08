@@ -58,7 +58,7 @@ protected:
 
 	TArray<FVector> CalculateSingleCatenary(TArray<FVector> ConectionPoints, bool bIsClosedLoop = false);
 
-	TArray<TArray<FVector>> CalculateCatenariesParalel(TArray<AUtilityPolePreset*> ConectionPoints, bool bIsClosedLoop = false);
+	TArray<TArray<FVector>> CalculateCatenariesParalel(const TArray<AUtilityPolePreset*>& ConectionPoints, bool bIsClosedLoop = false);
 
 	void ConstructSplineMeshesAlongSplines(USplineComponent* Spline);
 

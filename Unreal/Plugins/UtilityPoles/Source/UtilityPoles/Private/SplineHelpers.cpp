@@ -73,6 +73,13 @@ void USplineHelpers::GetSplineMeshStartAndEndByIteration(const int32 Index, cons
 TArray<FVector> UCatenaryHelpers::CreateCatenaryNewton(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps)
 {
 
+	TArray<FVector> Points;
+
+	if (FVector::PointsAreNear(StartPoint, EndPoint, 20.))
+	{
+		return Points;
+	}
+
 	float TotalDistance = FVector::Dist(StartPoint, EndPoint);
 	float HorizontalDistance = FVector::Dist(
 		FVector(EndPoint.X, EndPoint.Y, StartPoint.Z),
@@ -94,7 +101,6 @@ TArray<FVector> UCatenaryHelpers::CreateCatenaryNewton(const FVector& StartPoint
 	float Q = (EndPoint.Z + StartPoint.Z -
 		WireLength * FMath::Cosh(Z) / FMath::Sinh(Z)) / 2.0f;
 
-	TArray<FVector> Points;
 	Points.SetNum(Steps);
 
 	for (int32 i = 0; i < Steps; ++i)
