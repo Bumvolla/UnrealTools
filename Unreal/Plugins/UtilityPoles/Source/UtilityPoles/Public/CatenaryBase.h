@@ -52,6 +52,8 @@ protected:
 
 	void RemoveExcesSplines(int32 NeededSplines);
 
+	void RemoveSplines();
+
 	void RemoveSplineMeshes();
 
 	void ReuseOrCreateSplines();

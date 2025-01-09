@@ -41,6 +41,15 @@ void ACatenaryBase::RemoveExcesSplines(int32 NeededSplines)
     AllWires.SetNum(NeededSplines);
 }
 
+void ACatenaryBase::RemoveSplines()
+{
+    for (USplineComponent* SplineComp : AllWires)
+    {
+        SplineComp->DestroyComponent();
+    }
+    AllWires.Empty();
+}
+
 void ACatenaryBase::RemoveSplineMeshes()
 {
     if (!AllSplineMeshes.IsEmpty())

@@ -91,9 +91,11 @@ void ACollisionUtilityPole::Generate()
 
     if (UtilityPolesInColision.IsEmpty())
     {
+        RemoveSplines();
         RemoveSplineMeshes();
         return;
     }
+
     TArray<TArray<FVector>> AllCatenaryPoints;
 
     for (ACollisionUtilityPole* OverlappingPole : UtilityPolesInColision)
