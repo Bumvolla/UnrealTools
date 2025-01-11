@@ -28,7 +28,6 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, Category = "Si")
 	TArray<ACollisionUtilityPole*> ConectedUtilityPoles;
-	TArray<ACollisionUtilityPole*> UtilityPolesInColision;
 
 	TArray<ACollisionUtilityPole*> GetUtilityPolesInCollision();
 

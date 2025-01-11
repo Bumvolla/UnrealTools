@@ -76,17 +76,15 @@ FVector ACollisionUtilityPole::GetTransformsCenter()
 void ACollisionUtilityPole::Generate()
 {
 
-    ConectedUtilityPoles.Empty();
-
-    Pole->SetChildActorClass(PresetClass);
-    CastedPole = Cast<AUtilityPolePreset>(Pole->GetChildActor());
-
-    if (CastedPole)
-        WireTargets = CastedPole->WireTargets;
-
     Collision->SetRelativeLocation(GetTransformsCenter());
     Collision->SetSphereRadius(SphereSize);
 
+    ConectedUtilityPoles.Empty();
+
+    if (Pole->GetChildActor()->StaticClass() != PresetClass->StaticClass())
+        Pole->SetChildActorClass(PresetClass);
+
+    TArray<ACollisionUtilityPole*> UtilityPolesInColision;
     UtilityPolesInColision = GetUtilityPolesInCollision();
 
     if (UtilityPolesInColision.IsEmpty())
@@ -95,6 +93,10 @@ void ACollisionUtilityPole::Generate()
         RemoveSplineMeshes();
         return;
     }
+
+    CastedPole = Cast<AUtilityPolePreset>(Pole->GetChildActor());
+    if (!CastedPole) return;
+    WireTargets = CastedPole->WireTargets;
 
     TArray<TArray<FVector>> AllCatenaryPoints;
 

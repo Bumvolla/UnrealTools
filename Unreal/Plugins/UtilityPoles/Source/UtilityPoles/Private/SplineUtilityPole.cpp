@@ -7,7 +7,6 @@
 ASplineUtilityPole::ASplineUtilityPole()
 {
     
-
 	Spline = CreateDefaultSubobject<USplineComponent>(TEXT("Spline"));
 
 	SetRootComponent(Spline);
@@ -33,7 +32,6 @@ void ASplineUtilityPole::GenerateWires()
         if (AUtilityPolePreset* Pole = Cast<AUtilityPolePreset>(PoleIndices[i]->GetChildActor()))
         {
             CastedKeys.Add(Pole);
-            UE_LOG(LogUtilityPoles, Log, TEXT("Cast suceed"));
         }
     }
     if (CastedKeys.Num() < 2) return;
@@ -41,7 +39,6 @@ void ASplineUtilityPole::GenerateWires()
     // Retrieves how many connections the current pole have
     const uint8 TransformsAmount = CastedKeys[0]->WireTargets.Num();
 
-    UE_LOG(LogUtilityPoles, Log, TEXT("%i"), TransformsAmount);
     //Handles exces previously generated splines 
     RemoveExcesSplines(TransformsAmount);
 

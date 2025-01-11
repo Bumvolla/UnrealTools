@@ -142,14 +142,13 @@ TArray<TArray<FVector>> ACatenaryBase::CalculateCatenariesParalel(const TArray<A
 {
 
     TArray<TArray<FVector>> AllCatenaryPoints;
+    TArray<FVector> localSpaceWireTargets;
 
+    if (ConectionPoints.IsEmpty()) return AllCatenaryPoints;
 
-    if (ConectionPoints.IsEmpty())
-    {
-        return AllCatenaryPoints;
-    }
+    if (!ConectionPoints[0]) return AllCatenaryPoints;
 
-    TArray<FVector> localSpaceWireTargets = ConectionPoints[0]->WireTargets;
+    localSpaceWireTargets = ConectionPoints[0]->WireTargets;
 
     // Pre-calculate all catenary points in parallel
     const int32 WiresNum = localSpaceWireTargets.Num();
@@ -210,44 +209,67 @@ TArray<TArray<FVector>> ACatenaryBase::CalculateCatenariesParalel(const TArray<A
 void ACatenaryBase::ConstructSplineMeshesAlongSplines(USplineComponent* Spline)
 {
 
-    USplineComponent* Wire = Spline;
-
+    const float MeshLength = USplineHelpers::GetMeshLenght(WireMesh, WireMeshAxis);
     int32 SegmentStartPoint = 0;
     int32 SegmentEndPoint = SplineResolution - 1;
-    int32 iAtSegment = 0;
-
 
     while (SegmentEndPoint < Spline->GetNumberOfSplinePoints())
     {
-        USplineMeshComponent* splineMesh = NewObject<USplineMeshComponent>(this);
-        splineMesh->RegisterComponent();
-        splineMesh->AttachToComponent(Wire, FAttachmentTransformRules::KeepRelativeTransform);
 
-        FVector StartPoint, StartTangent, EndPoint, EndTangent;
-        USplineHelpers::GetSplineMeshStartAndEndByIteration(iAtSegment, MeshLenght, Wire, StartPoint, StartTangent, EndPoint, EndTangent, Wire->GetDistanceAlongSplineAtSplinePoint(SegmentStartPoint));
+        int32 MeshCount = USplineHelpers::GetMeshCountBewteenSplinePoints(Spline, WireMesh, WireMeshAxis, SegmentStartPoint, SegmentEndPoint);
 
-        if (iAtSegment == 0)
+        float SegmentStartDistance = Spline->GetDistanceAlongSplineAtSplinePoint(SegmentStartPoint);
+
+        for (int32 i = 0; i < MeshCount; i++)
         {
-            Wire->GetLocationAndTangentAtSplinePoint(SegmentStartPoint, StartPoint, StartTangent, ESplineCoordinateSpace::Local);
+            USplineMeshComponent* SplineMesh = NewObject<USplineMeshComponent>(this);
+            if (!SplineMesh)
+            {
+                continue;
+            }
+
+            SplineMesh->RegisterComponent();
+            SplineMesh->AttachToComponent(Spline, FAttachmentTransformRules::KeepRelativeTransform);
+
+            FVector StartPoint, StartTangent, EndPoint, EndTangent;
+
+            if (i == 0)
+            {
+
+                Spline->GetLocationAndTangentAtSplinePoint(SegmentStartPoint, StartPoint, StartTangent, ESplineCoordinateSpace::Local);
+
+
+                float EndDistance = SegmentStartDistance + MeshLength;
+                EndPoint = Spline->GetLocationAtDistanceAlongSpline(EndDistance, ESplineCoordinateSpace::Local);
+                EndTangent = Spline->GetTangentAtDistanceAlongSpline(EndDistance, ESplineCoordinateSpace::Local).GetClampedToSize(0, MeshLength);
+            }
+
+            else if (i == MeshCount - 1)
+            {
+
+                float StartDistance = SegmentStartDistance + (i * MeshLength);
+                StartPoint = Spline->GetLocationAtDistanceAlongSpline(StartDistance, ESplineCoordinateSpace::Local);
+                StartTangent = Spline->GetTangentAtDistanceAlongSpline(StartDistance, ESplineCoordinateSpace::Local).GetClampedToSize(0, MeshLength);
+
+                Spline->GetLocationAndTangentAtSplinePoint(SegmentEndPoint, EndPoint, EndTangent, ESplineCoordinateSpace::Local);
+            }
+
+            else
+            {
+                USplineHelpers::GetSplineMeshStartAndEndByIteration(
+                    i,
+                    MeshLength, Spline, StartPoint, StartTangent, EndPoint, EndTangent, SegmentStartDistance);
+            }
+
+            SplineMesh->SetStartAndEnd(StartPoint, StartTangent, EndPoint, EndTangent);
+            SplineMesh->SetStaticMesh(WireMesh);
+            SplineMesh->SetForwardAxis(ESplineMeshAxis::X);
+            AllSplineMeshes.Add(SplineMesh);
         }
 
-        if (iAtSegment + 1 > USplineHelpers::GetMeshCountBewteenSplinePoints(Wire, WireMesh, WireMeshAxis, SegmentStartPoint, SegmentEndPoint))
-        {
-            Wire->GetLocationAndTangentAtSplinePoint(SegmentEndPoint, EndPoint, EndTangent, ESplineCoordinateSpace::Local);
-            SegmentStartPoint = SegmentEndPoint;
-            SegmentEndPoint += SplineResolution - 1;
-            iAtSegment = 0;
-        }
-        else
-        {
-            iAtSegment++;
-        }
-
-        splineMesh->SetStartAndEnd(StartPoint, StartTangent, EndPoint, EndTangent);
-        splineMesh->SetStaticMesh(WireMesh);
-        splineMesh->SetForwardAxis(ESplineMeshAxis::X);
-
-        AllSplineMeshes.Add(splineMesh);
+        // Move to next segment
+        SegmentStartPoint = SegmentEndPoint;
+        SegmentEndPoint += SplineResolution - 1;
     }
 }
 
