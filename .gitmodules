@@ -1,0 +1,9 @@
+[submodule "Plugins/UE_UtilityPoles"]
+	path = Plugins/UE_UtilityPoles
+	url = https://github.com/Bumvolla/UE_UtilityPoles.git
+[submodule "Plugins/UE_LogToFile"]
+	path = Plugins/UE_LogToFile
+	url = https://github.com/Bumvolla/UE_LogToFile.git
+[submodule "Plugins/UE_Audio2Face"]
+	path = Plugins/UE_Audio2Face
+	url = https://github.com/Bumvolla/UE_Audio2Face.git
