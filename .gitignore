@@ -66,8 +66,11 @@ Saved/*
 Intermediate/*
 Plugins/*/Intermediate/*
 
-# Cache files for the editor to use
-DerivedDataCache/*
-
-# Starter content folder
-Content/StarterContent/
+DerivedDataCache/*  
+/Intermediate
+/Plugins/UnrealToolsPlugin/Binaries
+/Plugins/UnrealToolsPlugin/Intermediate
+/Plugins/UtilityPoles/Binaries
+/Plugins/UtilityPoles/Intermediate
+/Saved
+/Binaries
