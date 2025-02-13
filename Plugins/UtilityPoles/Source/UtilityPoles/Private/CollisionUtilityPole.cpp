@@ -5,9 +5,9 @@
 
 ACollisionUtilityPole::ACollisionUtilityPole()
 {
-    Pole = CreateDefaultSubobject<UChildActorComponent>(TEXT("Pole"));
-    Pole->RegisterComponent();
-    SetRootComponent(Pole);
+    PoleChildActorComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("Pole"));
+    PoleChildActorComponent->RegisterComponent();
+    SetRootComponent(PoleChildActorComponent);
 
     Collision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
     Collision->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
@@ -47,10 +47,6 @@ TArray<ACollisionUtilityPole*> ACollisionUtilityPole::GetUtilityPolesInCollision
         }
     }
     TArray<ACollisionUtilityPole*> SetOfPoles = PolesInColision.Array();
-    if (!SetOfPoles.IsEmpty())
-    {
-        UE_LOG(LogTemp, Log, TEXT("UWU"))
-    }
     return SetOfPoles;
 }
 
@@ -81,8 +77,8 @@ void ACollisionUtilityPole::Generate()
 
     ConectedUtilityPoles.Empty();
 
-    if (Pole->GetChildActor()->StaticClass() != PresetClass->StaticClass())
-        Pole->SetChildActorClass(PresetClass);
+    if (PoleChildActorComponent->GetChildActor()->StaticClass() != PresetClass->StaticClass())
+        PoleChildActorComponent->SetChildActorClass(PresetClass);
 
     TArray<ACollisionUtilityPole*> UtilityPolesInColision;
     UtilityPolesInColision = GetUtilityPolesInCollision();
@@ -94,7 +90,7 @@ void ACollisionUtilityPole::Generate()
         return;
     }
 
-    CastedPole = Cast<AUtilityPolePreset>(Pole->GetChildActor());
+    CastedPole = Cast<AUtilityPolePreset>(PoleChildActorComponent->GetChildActor());
     if (!CastedPole) return;
     WireTargets = CastedPole->WireTargets;
 

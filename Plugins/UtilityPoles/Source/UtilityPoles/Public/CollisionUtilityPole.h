@@ -36,7 +36,7 @@ protected:
 private:
 
 	USphereComponent* Collision;
-	UChildActorComponent* Pole;
+	UChildActorComponent* PoleChildActorComponent;
 
 public:
 
