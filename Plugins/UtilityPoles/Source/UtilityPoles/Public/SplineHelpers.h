@@ -30,7 +30,7 @@ class UTILITYPOLES_API USplineHelpers : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Spline Construction Script Tools")
-	static TArray<FTransform> GetTransformPointsAlongSpline(const USplineComponent* spline, float distBetweenObjects);
+	static TArray<FTransform> GetTransformPointsAlongSpline(const USplineComponent* spline, float distBetweenObjects, const bool bFacingUp = true);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Construction Script Tools")
 	static float GetMeshLenght(const UStaticMesh* Mesh, EAxis::Type Axis);

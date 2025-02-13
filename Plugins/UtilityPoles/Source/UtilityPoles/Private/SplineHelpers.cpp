@@ -2,7 +2,7 @@
 
 #include "SplineHelpers.h"
 
-TArray<FTransform> USplineHelpers::GetTransformPointsAlongSpline(const USplineComponent* spline, const float distBetweenObjects)
+TArray<FTransform> USplineHelpers::GetTransformPointsAlongSpline(const USplineComponent* spline, const float distBetweenObjects, const bool bFacingUp)
 {
 	float splineLength = spline->GetSplineLength();
 	int32 instancesToSpawn = FMath::CeilToInt(splineLength / distBetweenObjects);
@@ -12,7 +12,14 @@ TArray<FTransform> USplineHelpers::GetTransformPointsAlongSpline(const USplineCo
 	for (int32 i = 0; i <= instancesToSpawn; i++)
 	{
 		float distanceAlongSpline = (splineLength / instancesToSpawn) * i;
-		SpawnPointsTransform.Add(spline->GetTransformAtDistanceAlongSpline(distanceAlongSpline, ESplineCoordinateSpace::Local));
+
+		FTransform splinePointTransform = spline->GetTransformAtDistanceAlongSpline(distanceAlongSpline, ESplineCoordinateSpace::Local);
+		FTransform facingUpTransform = FTransform
+			(FRotator(0.f, splinePointTransform.Rotator().Yaw, splinePointTransform.Rotator().Roll),
+			splinePointTransform.GetLocation(),
+			FVector(1.f, 1.f, 1.f));
+
+		SpawnPointsTransform.Add(bFacingUp ? facingUpTransform : splinePointTransform);
 	}
 
 	return SpawnPointsTransform;
@@ -49,17 +56,7 @@ int USplineHelpers::GetMeshesCountInSpline(const USplineComponent* Spline, const
 	return FMath::TruncToInt(Spline->GetSplineLength() / GetMeshLenght(Mesh, Axis));
 }
 
-float USplineHelpers::GetDistanceBetweenSplinePoints(const USplineComponent* Spline, const int32& Point1, const int32& Point2)
-{
-	return FMath::Abs(Spline->GetDistanceAlongSplineAtSplinePoint(Point1) - Spline->GetDistanceAlongSplineAtSplinePoint(Point2));
-}
-
-int USplineHelpers::GetMeshCountBewteenSplinePoints(const USplineComponent* Spline, const UStaticMesh* Mesh, EAxis::Type Axis, const int32& Point1, const int32& Point2)
-{
-	return FMath::TruncToInt(USplineHelpers::GetDistanceBetweenSplinePoints(Spline, Point1, Point2) / USplineHelpers::GetMeshLenght(Mesh, Axis));
-}
-
-void USplineHelpers::GetSplineMeshStartAndEndByIteration(const int32 Index, const float Bound, const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent, const float& NewStartPosition)
+void USplineHelpers::GetSplineMeshStartAndEndByIteration(const int Index, const float Bound, const USplineComponent* Spline, FVector& StartPosition, FVector& StartTangent, FVector& EndPosition, FVector& EndTangent, const float& NewStartPosition)
 {
 	float StartDistance = Index * Bound + NewStartPosition;
 	float EndDistance = (Index + 1) * Bound + NewStartPosition;
@@ -68,6 +65,16 @@ void USplineHelpers::GetSplineMeshStartAndEndByIteration(const int32 Index, cons
 	StartTangent = Spline->GetTangentAtDistanceAlongSpline(StartDistance, ESplineCoordinateSpace::Local).GetClampedToSize(0, Bound);
 	EndPosition = Spline->GetLocationAtDistanceAlongSpline(EndDistance, ESplineCoordinateSpace::Local);
 	EndTangent = Spline->GetTangentAtDistanceAlongSpline(EndDistance, ESplineCoordinateSpace::Local).GetClampedToSize(0, Bound);
+}
+
+float USplineHelpers::GetDistanceBetweenSplinePoints(const USplineComponent* Spline, const int32& Point1, const int32& Point2)
+{
+	return FMath::Abs(Spline->GetDistanceAlongSplineAtSplinePoint(Point1) - Spline->GetDistanceAlongSplineAtSplinePoint(Point2));
+}
+
+int USplineHelpers::GetMeshCountBewteenSplinePoints(const USplineComponent* Spline, const UStaticMesh* Mesh, EAxis::Type Axis, const int32& Point1, const int32& Point2)
+{
+	return FMath::TruncToInt(USplineHelpers::GetDistanceBetweenSplinePoints(Spline, Point1, Point2) / USplineHelpers::GetMeshLenght(Mesh, Axis));
 }
 
 TArray<FVector> UCatenaryHelpers::CreateCatenaryNewton(const FVector& StartPoint, const FVector& EndPoint, float Slack, int32 Steps)

@@ -120,7 +120,7 @@ void ASplineUtilityPole::ReuseOrCreatePoles(TArray<FTransform> AllPoleTransforms
             UChildActorComponent* NewPole = NewObject<UChildActorComponent>(this, *PoleName);
             NewPole->SetChildActorClass(PresetClass);
             NewPole->RegisterComponent();
-            NewPole->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+            NewPole->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
             NewPole->SetRelativeTransform(Transform);
 
             if (PoleIndices.IsValidIndex(i))
