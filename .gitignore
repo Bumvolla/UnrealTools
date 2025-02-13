@@ -41,16 +41,12 @@
 *.VC.db
 *.VC.opendb
 
-# Precompiled Assets
-Unreal/SourceArt/**/*.png
-Unreal/SourceArt/**/*.tga
-
 # Binary Files
 Unreal/Binaries/*
 Unreal/Plugins/*/Binaries/*
 
 # Builds
-Unreal/Build/*
+Build/*
 
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/
@@ -71,7 +67,11 @@ Unreal/Intermediate/*
 Unreal/Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
-DerivedDataCache/*
-
-# Starter content
-Unreal/Content/StarterContent/*
+DerivedDataCache/*  
+/Intermediate
+/Plugins/UnrealToolsPlugin/Binaries
+/Plugins/UnrealToolsPlugin/Intermediate
+/Plugins/UtilityPoles/Binaries
+/Plugins/UtilityPoles/Intermediate
+/Saved
+/Binaries
