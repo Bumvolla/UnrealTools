@@ -1,45 +1,64 @@
 #include "CustomStyle.h"
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "CustomStyle.h"
+#include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyleRegistry.h"
 
-FName FChannelMixerStyle::StyleSetName = FName("UnrealToolsCustomStyle");
-TSharedPtr<FSlateStyleSet> FChannelMixerStyle::CreatedSlateStyleSet = nullptr;
+#include "Misc/Paths.h"
 
-void FChannelMixerStyle::InitializeIcons()
+UStyle* UStyleFactory::CreateStyle(FName StyleSetName, FString IconName, FName PropertyName)
 {
-	if (!CreatedSlateStyleSet.IsValid())
-	{
-		CreatedSlateStyleSet = CreateSlateStyleSet();
-		FSlateStyleRegistry::RegisterSlateStyle(*CreatedSlateStyleSet);
-	}
+    UStyle* GeneratedStyle = NewObject<UStyle>();
+    GeneratedStyle->Initialize(StyleSetName, IconName, PropertyName);
+    return GeneratedStyle;
 }
 
-
-TSharedRef<FSlateStyleSet> FUnrealToFChannelMixerStyleolsStyle::CreateSlateStyleSet()
+void UStyle::Initialize(FName In_StyleSetName, FString In_IconName, FName In_PropertyName)
 {
-	TSharedRef<FSlateStyleSet> CustomStyleSet = MakeShareable(new FSlateStyleSet(StyleSetName));
+    StyleSetName = In_StyleSetName;
+    IconName = In_IconName;
+    PropertyName = In_PropertyName;
+    CreatedSlateStyleSet = nullptr;
 
-	const FString IconDirectory = IPluginManager::Get().FindPlugin(TEXT("UnrealToolsPlugin"))->GetBaseDir() / "Resources";
-	CustomStyleSet->SetContentRoot(IconDirectory);
-
-	const FVector2D Icon16x16(16.f, 16.f);
-
-
-	const FString IconDir = IconDirectory + TEXT("/TextureToMask_16.png");
-	CustomStyleSet->Set("ContentBrowser.MakeMask", new FSlateImageBrush( IconDir, Icon16x16));
-
-	return CustomStyleSet;
+    InitializeIcons();
 }
 
-void FChannelMixerStyle::ShutDown()
+void UStyle::InitializeIcons()
 {
-	if (CreatedSlateStyleSet.IsValid())
-	{
-		FSlateStyleRegistry::UnRegisterSlateStyle(*CreatedSlateStyleSet);
-		CreatedSlateStyleSet.Reset();
-	}
+    if (!CreatedSlateStyleSet.IsValid())
+    {
+        CreatedSlateStyleSet = CreateSlateStyleSet();
+        FSlateStyleRegistry::RegisterSlateStyle(*CreatedSlateStyleSet);
+
+    }
+}
+
+TSharedRef<FSlateStyleSet> UStyle::CreateSlateStyleSet()
+{
+    TSharedRef<FSlateStyleSet> CustomStyleSet = MakeShareable(new FSlateStyleSet(StyleSetName));
+
+    const FString ModuleString = UStyle::GetClass()->GetMetaData(TEXT("ModuleName"));
+    const TSharedPtr<IPlugin> ContainerPlugin = IPluginManager::Get().GetModuleOwnerPlugin(FName(*ModuleString));
+
+    // Set the content root for the style set
+    const FString PluginResourcesDirectory = FString::Printf(TEXT("%sResources"), *ContainerPlugin->GetBaseDir());
+    if (!FPaths::DirectoryExists(PluginResourcesDirectory)) return CustomStyleSet;
+    CustomStyleSet->SetContentRoot(PluginResourcesDirectory);
+
+    // Define the icon size
+    const FVector2D Icon16x16(16.f, 16.f);
+
+    // Add the icon to the style set
+    const FString IconPath = FString::Printf(TEXT("%s/%s"), *PluginResourcesDirectory, *IconName); 
+    CustomStyleSet->Set(PropertyName, new FSlateImageBrush(IconName, Icon16x16));
+
+    return CustomStyleSet;
+}
+
+void UStyle::ShutDown()
+{
+    if (CreatedSlateStyleSet.IsValid())
+    {
+        FSlateStyleRegistry::UnRegisterSlateStyle(*CreatedSlateStyleSet);
+        CreatedSlateStyleSet.Reset();
+    }
 }

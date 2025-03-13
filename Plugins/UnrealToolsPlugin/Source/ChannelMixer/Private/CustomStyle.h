@@ -3,21 +3,40 @@
 #pragma once
 
 #include "Styling/SlateStyle.h"
+#include "CustomStyle.generated.h"
 
-class FChannelMixerStyle
+UCLASS()
+class UStyleFactory : public UObject
 {
+	GENERATED_BODY()
+
 public:
-	static void InitializeIcons();
-	static void ShutDown();
+	static UStyle* CreateStyle(FName StyleSetName, FString IconName, FName PropertyName);
+};
+
+UCLASS(Meta = (ModuleName = "ChannelMixer"))
+class UStyle : public UObject
+{
+
+	GENERATED_BODY()
+
+public:
+
+	void Initialize(FName In_StyleSetName, FString In_IconName, FName In_PropertyName);
+
+	void InitializeIcons();
+	void ShutDown();
+	FName PropertyName;
 
 private:
 
-	static FName StyleSetName;
+	FName StyleSetName;
+	FString IconName;
+	FName ModuleName;
 
-	static TSharedRef<FSlateStyleSet> CreateSlateStyleSet();
-
-	static TSharedPtr<FSlateStyleSet> CreatedSlateStyleSet;
+	TSharedRef<FSlateStyleSet> CreateSlateStyleSet();
+	TSharedPtr<FSlateStyleSet> CreatedSlateStyleSet;
 
 public:
-	static FName GetStyleSetName() { return StyleSetName; }
+	FName GetStyleSetName() { return StyleSetName; }
 };

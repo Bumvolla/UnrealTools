@@ -8,20 +8,44 @@ public class ChannelMixer : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] 
-			{ 
-				"Core",
-				"CoreUObject",
-				"Engine"
-			});
-		
-		PrivateDependencyModuleNames.AddRange(
-			new string[]
-			{
-				
-			});
-		
-		DynamicallyLoadedModuleNames.AddRange(
+        PublicDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "Core",
+                "AssetRegistry",
+                "UMG",
+                "Niagara",
+                "AssetTools",
+                "ContentBrowser",
+                "EditorScriptingUtilities",
+                "UnrealEd",
+            }
+            );
+
+
+        PrivateDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "CoreUObject",
+                "Engine",
+                "Slate",
+                "SlateCore",
+                "ApplicationCore",
+                "Projects",
+                "InputCore",
+                "EditorFramework",
+                "ToolMenus",
+                "UnrealEd",
+                "Projects",
+
+
+
+
+				// ... add private dependencies that you statically link with here ...	
+			}
+            );
+
+        DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
 				

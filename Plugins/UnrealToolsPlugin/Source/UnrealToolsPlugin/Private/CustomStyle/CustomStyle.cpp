@@ -42,3 +42,5 @@ void FUnrealToolsStyle::ShutDown()
 		CreatedSlateStyleSet.Reset();
 	}
 }
+
+
