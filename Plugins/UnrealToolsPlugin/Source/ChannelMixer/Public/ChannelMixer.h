@@ -5,39 +5,59 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "Framework/MultiBox/MultiBoxExtender.h"
-#include "CustomStyle.h"
 #include "Interfaces/IPluginManager.h"
+#include "Framework/MultiBox/MultiBoxExtender.h"
 
+/**
+ * Main module class that holds state and initializes the texture mixer.
+ */
 class FChannelMixer : public IModuleInterface
 {
 public:
-    void StartupModule() override;
-    void ShutdownModule() override;
+    virtual void StartupModule() override;
+    virtual void ShutdownModule() override;
+
+    // Accessors for naming settings (used in BuildPackagePath)
+    FString GetExportPath() const { return ExportPath; }
+    FString GetTexturePrefix() const { return TexturePrefix; }
+    FString GetTextureName() const { return TextureName; }
+    FString GetTextureSuffix() const { return TextureSuffix; }
+    int32 GetTextureResolution()const { return TextureResolution; }
+
+    // State variables shared with UI & utils.
+    TSharedPtr<SImage> RedChannelImage;
+    TSharedPtr<SImage> GreenChannelImage;
+    TSharedPtr<SImage> BlueChannelImage;
+    TSharedPtr<SImage> AlphaChannelImage;
+    TSharedPtr<SImage> PreviewImage;
+
+    UTextureRenderTarget2D* CombinedTexture;
+
+    UTexture2D* PreviewTexture;
+    UTexture2D* RedTexture;
+    UTexture2D* GreenTexture;
+    UTexture2D* BlueTexture;
+    UTexture2D* AlphaTexture;
+
+    UMaterialInstanceDynamic* BlendMaterial;
+    TSharedPtr<FSlateBrush> PreviewBrush;
 
 private:
     void InitToolsMenuExtension();
     void AddToolsMenuEntry(FMenuBuilder& MenuBuilder);
     void OpenTextureMixerWindow();
 
-    void UpdatePreviewTexture();
-
-
-    const FString PluginContentDir = IPluginManager::Get().FindPlugin(TEXT("UnrealToolsPlugin"))->GetContentDir();
-    TSharedRef<SWidget> CreateChannelWidget(const FString& ChannelName, TSharedPtr<SImage>& ChannelImage, UTexture2D** ChannelTexture);
-
-
-    TSharedPtr<SImage> RedChannelImage;
-    TSharedPtr<SImage> GreenChannelImage;
-    TSharedPtr<SImage> BlueChannelImage;
-    TSharedPtr<SImage> AlphaChannelImage;
-    TSharedPtr<SImage> PreviewImage;
-    UTextureRenderTarget2D* CombinedTexture = nullptr;
-    UTexture2D* RedTexture = nullptr;
-    UTexture2D* GreenTexture = nullptr;
-    UTexture2D* BlueTexture = nullptr;
-    UTexture2D* AlphaTexture = nullptr;
-    TSharedPtr<FSlateBrush> PreviewBrush;
+    // These settings determine where exported textures go and how they are named.
+    const FString PluginContentDir;
+    FString ExportPath;
+    FString TexturePrefix;
+    FString TextureName;
+    FString TextureSuffix;
+    int32 TextureResolution;
 
     TSharedPtr<FExtender> ToolbarExtender;
+
+public:
+    // Constructor to initialize default values.
+    FChannelMixer();
 };

@@ -19,6 +19,7 @@ public class ChannelMixer : ModuleRules
                 "ContentBrowser",
                 "EditorScriptingUtilities",
                 "UnrealEd",
+                "RenderCore"
             }
             );
 
