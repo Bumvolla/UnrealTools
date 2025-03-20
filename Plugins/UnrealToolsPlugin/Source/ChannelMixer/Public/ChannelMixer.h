@@ -42,6 +42,12 @@ public:
     UMaterialInstanceDynamic* BlendMaterial;
     TSharedPtr<FSlateBrush> PreviewBrush;
 
+    FString TexturePrefix;
+    FString TextureName;
+    FString TextureSuffix;
+    FString ExportPath;
+    int32 TextureResolution;
+
 private:
     void InitToolsMenuExtension();
     void AddToolsMenuEntry(FMenuBuilder& MenuBuilder);
@@ -49,11 +55,6 @@ private:
 
     // These settings determine where exported textures go and how they are named.
     const FString PluginContentDir;
-    FString ExportPath;
-    FString TexturePrefix;
-    FString TextureName;
-    FString TextureSuffix;
-    int32 TextureResolution;
 
     TSharedPtr<FExtender> ToolbarExtender;
 

@@ -2,6 +2,7 @@
 #include "ChannelMixer.h"
 #include "ChannelMixerUtils.h"
 #include "Widgets/SWindow.h"
+#include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/Layout/SUniformGridPanel.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/Input/SButton.h"
@@ -42,17 +43,33 @@ TSharedRef<SWidget> FChannelMixerUI::CreateMainLayout(FChannelMixer* Mixer)
         ]
         // Preview image area.
         + SVerticalBox::Slot()
-        .VAlign(VAlign_Center)
-        .HAlign(HAlign_Center)
+        .FillHeight(1.0f)
+        .VAlign(VAlign_Fill)
+        .HAlign(HAlign_Fill)
         .Padding(10)
         [
-            SNew(SBox)
-                .WidthOverride(200)
-                .HeightOverride(200)
+            SNew(SScaleBox)
+                .Stretch(EStretch::ScaleToFit)
                 [
-                    SAssignNew(Mixer->PreviewImage, SImage)
+                    SNew(SBox)
+                        .WidthOverride_Lambda([]() -> float {return FindDesiredSizeKeepRatio(); })
+                        .HeightOverride_Lambda([]() -> float {return FindDesiredSizeKeepRatio(); })
+                        [
+                            SAssignNew(Mixer->PreviewImage, SImage)
+                        ]
                 ]
         ]
+
+        // Texture name config
+        + SVerticalBox::Slot()
+        .AutoHeight()
+        [
+            SNew(SHorizontalBox)
+                + SHorizontalBox::Slot()[CreateTextureNamingWidget(TEXT("Prefix"), Mixer->TexturePrefix, Mixer)]
+                + SHorizontalBox::Slot()[CreateTextureNamingWidget(TEXT("Name"), Mixer->TextureName, Mixer)]
+                + SHorizontalBox::Slot()[CreateTextureNamingWidget(TEXT("Suffix"), Mixer->TextureSuffix, Mixer)]
+        ]
+
         // Export button.
         + SVerticalBox::Slot()
         .AutoHeight()
@@ -60,10 +77,11 @@ TSharedRef<SWidget> FChannelMixerUI::CreateMainLayout(FChannelMixer* Mixer)
             SNew(SButton)
                 .Text(FText::FromString("Export"))
                 .OnClicked_Lambda([Mixer]() -> FReply
-                    {
-                        return FChannelMixerUtils::ExportTexture(Mixer);
-                    })
+                {
+                    return FChannelMixerUtils::ExportTexture(Mixer);
+                })
         ];
+
 }
 
 TSharedRef<SWidget> FChannelMixerUI::CreateChannelWidget(const FString& ChannelName, TSharedPtr<SImage>& ChannelImage, UTexture2D** ChannelTexture, FChannelMixer* Mixer)
@@ -97,8 +115,42 @@ TSharedRef<SWidget> FChannelMixerUI::CreateChannelWidget(const FString& ChannelN
             SNew(SButton)
                 .Text(FText::FromString("Import"))
                 .OnClicked_Lambda([ChannelName, &ChannelImage, ChannelTexture, Mixer]() -> FReply
+                {
+                    return FChannelMixerUtils::ImportTextureFromCB(Mixer, ChannelName, ChannelImage, ChannelTexture);
+                })
+        ];
+}
+
+float FChannelMixerUI::FindDesiredSizeKeepRatio()
+{
+    TSharedPtr<SWindow> ActiveWindow = FSlateApplication::Get().FindBestParentWindowForDialogs(nullptr);
+    if (ActiveWindow.IsValid())
+    {
+        FVector2D WindowSize = ActiveWindow->GetClientSizeInScreen();
+        return FMath::Min(WindowSize.X, WindowSize.Y) * 0.8f;
+    }
+    return 300.0f;
+}
+
+TSharedRef<SWidget> FChannelMixerUI::CreateTextureNamingWidget(const FString& ToolTip, FString& ChangedText, FChannelMixer* Mixer)
+{
+    return SNew(SVerticalBox)
+        + SVerticalBox::Slot()
+        .AutoHeight()
+        [
+            SNew(STextBlock).Text(FText::FromString("Texture" + ToolTip))
+        ]
+        + SVerticalBox::Slot()
+        .AutoHeight()
+        [
+            SNew(SBox)
+                .HeightOverride(30)
+            [
+                SNew(SEditableText).ToolTipText(FText::FromString("Sets the " + ToolTip + " in the saved texture"))
+                    .OnTextCommitted_Lambda([&ChangedText, Mixer](const FText& ComitedText, ETextCommit::Type) -> void
                     {
-                        return FChannelMixerUtils::ImportTextureFromCB(Mixer, ChannelName, ChannelImage, ChannelTexture);
+                        ChangedText = ComitedText.ToString();
                     })
+            ]
         ];
 }

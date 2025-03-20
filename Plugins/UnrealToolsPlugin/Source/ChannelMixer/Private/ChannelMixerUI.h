@@ -16,4 +16,7 @@ private:
     static TSharedRef<SWindow> BuildMainWindow();
     static TSharedRef<SWidget> CreateMainLayout(FChannelMixer* Mixer);
     static TSharedRef<SWidget> CreateChannelWidget(const FString& ChannelName, TSharedPtr<SImage>& ChannelImage, UTexture2D** ChannelTexture, FChannelMixer* Mixer);
+    static float FindDesiredSizeKeepRatio();
+    static TSharedRef<SWidget> CreateTextureNamingWidget(const FString& ToolTip, FString& ChangedText, FChannelMixer* Mixer);
+    
 };
