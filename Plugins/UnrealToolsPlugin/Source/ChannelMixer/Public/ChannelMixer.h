@@ -13,11 +13,12 @@
  */
 class FChannelMixer : public IModuleInterface
 {
+
 public:
+    FChannelMixer();
     virtual void StartupModule() override;
     virtual void ShutdownModule() override;
 
-    // Accessors for naming settings (used in BuildPackagePath)
     FString GetExportPath() const { return ExportPath; }
     FString GetTexturePrefix() const { return TexturePrefix; }
     FString GetTextureName() const { return TextureName; }
@@ -48,17 +49,13 @@ public:
     FString ExportPath;
     int32 TextureResolution;
 
+
 private:
     void InitToolsMenuExtension();
     void AddToolsMenuEntry(FMenuBuilder& MenuBuilder);
     void OpenTextureMixerWindow();
 
-    // These settings determine where exported textures go and how they are named.
     const FString PluginContentDir;
 
     TSharedPtr<FExtender> ToolbarExtender;
-
-public:
-    // Constructor to initialize default values.
-    FChannelMixer();
 };

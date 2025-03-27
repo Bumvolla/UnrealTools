@@ -10,6 +10,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Misc/Paths.h"
 
+
 void FChannelMixerUI::ShowTextureMixerWindow(FChannelMixer* Mixer)
 {
     TSharedRef<SWindow> TextureMixerWindow = BuildMainWindow();
@@ -65,9 +66,15 @@ TSharedRef<SWidget> FChannelMixerUI::CreateMainLayout(FChannelMixer* Mixer)
         .AutoHeight()
         [
             SNew(SHorizontalBox)
-                + SHorizontalBox::Slot()[CreateTextureNamingWidget(TEXT("Prefix"), Mixer->TexturePrefix, Mixer)]
-                + SHorizontalBox::Slot()[CreateTextureNamingWidget(TEXT("Name"), Mixer->TextureName, Mixer)]
-                + SHorizontalBox::Slot()[CreateTextureNamingWidget(TEXT("Suffix"), Mixer->TextureSuffix, Mixer)]
+                + SHorizontalBox::Slot()[CreateNameConfigWidget(TEXT("Texture Prefix"), TEXT("Prefix the exported texture will use"), TEXT("T"), Mixer->TexturePrefix, Mixer)]
+                + SHorizontalBox::Slot()[CreateNameConfigWidget(TEXT("Texture Name"), TEXT("Name the exported texture will use"), TEXT("GeneratedMask"), Mixer->TextureName, Mixer)]
+                + SHorizontalBox::Slot()[CreateNameConfigWidget(TEXT("Texture Suffix"), TEXT("Suffix the exported texture will use"), TEXT("Mask"), Mixer->TextureSuffix, Mixer)]
+        ]
+        + SVerticalBox::Slot()
+        .AutoHeight()
+        [
+            SNew(SHorizontalBox)
+                + SHorizontalBox::Slot()[CreateNameConfigWidget(TEXT("Export folder"), TEXT("Export path for the generated texture\n Relative to project content folder"), TEXT("GeneratedMasks"), Mixer->ExportPath, Mixer)]
         ]
 
         // Export button.
@@ -132,25 +139,33 @@ float FChannelMixerUI::FindDesiredSizeKeepRatio()
     return 300.0f;
 }
 
-TSharedRef<SWidget> FChannelMixerUI::CreateTextureNamingWidget(const FString& ToolTip, FString& ChangedText, FChannelMixer* Mixer)
+TSharedRef<SWidget> FChannelMixerUI::CreateNameConfigWidget(const FString& Name, const FString& ToolTip, const FString& HintText, FString& ChangedText, FChannelMixer* Mixer)
 {
-    return SNew(SVerticalBox)
-        + SVerticalBox::Slot()
-        .AutoHeight()
+    return SNew(SBorder)
+        .BorderBackgroundColor(FLinearColor::Black)
         [
-            SNew(STextBlock).Text(FText::FromString("Texture" + ToolTip))
-        ]
-        + SVerticalBox::Slot()
-        .AutoHeight()
-        [
-            SNew(SBox)
-                .HeightOverride(30)
-            [
-                SNew(SEditableText).ToolTipText(FText::FromString("Sets the " + ToolTip + " in the saved texture"))
-                    .OnTextCommitted_Lambda([&ChangedText, Mixer](const FText& ComitedText, ETextCommit::Type) -> void
-                    {
-                        ChangedText = ComitedText.ToString();
-                    })
-            ]
+            SNew(SVerticalBox)
+                + SVerticalBox::Slot()
+                .AutoHeight()
+                [
+                    SNew(STextBlock).Text(FText::FromString(Name))
+                ]
+                + SVerticalBox::Slot()
+                .AutoHeight()
+                [
+                    SNew(SBox)
+                        .HeightOverride(30)
+                        [
+                            SNew(SEditableTextBox)
+                                .BackgroundColor(FLinearColor(10,10,10))
+                                .HintText(FText::FromString(HintText))
+                                .ToolTipText(FText::FromString(ToolTip))
+                                .OnTextCommitted_Lambda([&ChangedText, Mixer](const FText& ComitedText, ETextCommit::Type) -> void
+                                    {
+                                        ChangedText = ComitedText.ToString();
+                                    })
+                        ]
+
+                ]
         ];
 }
