@@ -113,8 +113,10 @@ FString FChannelMixerUtils::BuildPackagePath(FChannelMixer* Mixer)
     if (!Mixer) return FString();
 
     FString tempPrefix = Mixer->GetTexturePrefix().IsEmpty() ? TEXT("") : FString::Printf(TEXT("%s_"), *Mixer->GetTexturePrefix());
+    // This should be overrided with a settings default name
+    FString tempName = Mixer->GetTextureName().IsEmpty() ? TEXT("GeneratedMask") : Mixer->GetTextureName();
     FString tempSuffix = Mixer->GetTextureSuffix().IsEmpty() ? TEXT("") : FString::Printf(TEXT("_%s"), *Mixer->GetTextureSuffix());
-    FString AssetName = FString::Printf(TEXT("%s%s%s"), *tempPrefix, *Mixer->GetTextureName(), *tempSuffix);
+    FString AssetName = FString::Printf(TEXT("%s%s%s"), *tempPrefix, *tempName, *tempSuffix);
     FString PackageName = FString::Printf(TEXT("/Game/%s/%s"), *Mixer->GetExportPath(), *AssetName);
     return PackageName;
 }
