@@ -28,4 +28,11 @@ public:
     static FReply ExportTexture(FChannelMixer* Mixer);
     static FReply ImportTextureFromCB(FChannelMixer* Mixer, const FString& ChannelName, TSharedPtr<class SImage>& ChannelImage, UTexture2D** ChannelTexture);
 
+    static int32 ResFinder(FString SelectedOption);
+    static FReply RestoreSlotDefaultTexture(const FString& ChannelName, FChannelMixer* Mixer);
+
+    static void CreateAndSetPreviewBrush(UTexture2D* NewTexture, TSharedPtr<SImage>& ChannelImage, UTexture2D** ChannelTexture);
+    static void SetTextureParameterValue(const FString& ChannelName, UTexture2D** ChannelTexture, FChannelMixer* Mixer);
+    
+
 };
