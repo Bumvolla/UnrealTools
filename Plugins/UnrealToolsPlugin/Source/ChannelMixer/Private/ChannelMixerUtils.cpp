@@ -13,6 +13,7 @@
 #include "Logging/LogMacros.h"
 #include "LevelEditor.h"
 #include "UnrealToolsPlugin/Public/DebugHeader.h"
+#include "EnchancedEditorLogging/Public/EnchancedNotifications.h"
 
 
 FReply FChannelMixerUtils::ExportTexture(FChannelMixer* Mixer)
@@ -31,10 +32,9 @@ FReply FChannelMixerUtils::ExportTexture(FChannelMixer* Mixer)
         TextureCompressionSettings::TC_Masks,
         TextureMipGenSettings::TMGS_NoMipmaps
     );
-    if (ExportedTexture)
-    {
-        PrintToNotification(FString::Printf(TEXT("Successfully exported combined texture to /Content/%s"), *Mixer->GetExportPath()));
-    }
+
+    UEnchancedNotifications::OpenCBDirNotification(FString::Printf(TEXT("Successfully exported combined texture to /Content/%s"), *Mixer->ExportPath), FString::Printf(TEXT("/Game/%s"), *Mixer->ExportPath));
+
     return FReply::Handled();
 }
 
