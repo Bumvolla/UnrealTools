@@ -13,6 +13,14 @@
 #include "ContentBrowserModule.h"
 #include "EnchancedNotifications.h"
 
+void UEnchancedNotifications::LaunchNotification(const FString& Title, const float& Duration)
+{
+    FNotificationInfo Info(FText::FromString(Title));
+    Info.FadeOutDuration = Duration;
+
+     FSlateNotificationManager::Get().AddNotification(Info);
+}
+
 void UEnchancedNotifications::OpenCBDirNotification(const FString& Title, const FString& Dir)
 {
     TSharedPtr<SNotificationItem> NotificationPtr;

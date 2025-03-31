@@ -75,7 +75,7 @@ void FChannelMixer::OpenTextureMixerWindow()
 
 
     UWorld* World = GEditor->GetEditorWorldContext().World();
-    UMaterialInterface* BaseMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/UnrealToolsPlugin/MM/MM_TextureMixer"));
+    UMaterialInterface* BaseMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/MaskTools/MM/MM_TextureMixer"));
     BlendMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(World, BaseMaterial);
 
 }

@@ -15,5 +15,11 @@ class ENCHANCEDEDITORLOGGING_API UEnchancedNotifications : public UBlueprintFunc
 	GENERATED_BODY()
 	
 public:
+
+	UFUNCTION(BlueprintCallable, Category = "Editor Notifications")
+	static void LaunchNotification(const FString& Title, const float& Duration = 10.f);
+
+	UFUNCTION(BlueprintCallable, Category = "Editor Notifcations")
 	static void OpenCBDirNotification(const FString& Title, const FString& Dir);
+
 };

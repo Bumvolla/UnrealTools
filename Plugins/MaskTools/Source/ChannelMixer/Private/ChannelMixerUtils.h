@@ -14,7 +14,6 @@
 #include "Misc/Paths.h"
 #include "Logging/LogMacros.h"
 #include "LevelEditor.h"
-#include "UnrealToolsPlugin/Public/DebugHeader.h"
 /**
  * Utility functions for updating the preview texture, building package paths,
  * and handling import/export functionality.

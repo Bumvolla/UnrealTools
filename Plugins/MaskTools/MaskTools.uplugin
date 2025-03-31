@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "UnrealToolsPlugin",
+	"FriendlyName": "MaskTools",
 	"Description": "",
 	"Category": "Other",
 	"CreatedBy": "Sora Mas",
@@ -11,13 +11,28 @@
 	"MarketplaceURL": "",
 	"SupportURL": "",
 	"CanContainContent": true,
-	"IsBetaVersion": true,
+	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "UnrealToolsPlugin",
+			"Name": "MaskTools",
 			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+				{
+			"Name": "ChannelMixer",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+				{
+			"Name": "EnchancedEditorLogging",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "ChannelSplitter",
+			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}
 	],

@@ -12,7 +12,6 @@
 #include "Misc/Paths.h"
 #include "Logging/LogMacros.h"
 #include "LevelEditor.h"
-#include "UnrealToolsPlugin/Public/DebugHeader.h"
 #include "EnchancedEditorLogging/Public/EnchancedNotifications.h"
 
 
@@ -55,12 +54,12 @@ FReply FChannelMixerUtils::ImportTextureFromCB(FChannelMixer* Mixer, const FStri
         }
         else
         {
-            PrintToNotification(TEXT("Please select a texture to import"));
+            UEnchancedNotifications::LaunchNotification(TEXT("Please select a texture to import"));
         }
     }
     else
     {
-        PrintToNotification(TEXT("Please select a texture to import"));
+        UEnchancedNotifications::LaunchNotification(TEXT("Please select a texture to import"));
     }
 
     UpdatePreviewTexture(Mixer);
