@@ -80,34 +80,34 @@ void FChannelSplitter::SplitTextures()
 
     UWorld* World = GEditor->GetEditorWorldContext().World();
 
-
     for (UTexture2D* Texture : SelectedTextures)
     {
+
         TArray<UMaterialInstanceDynamic*> SplitMaterialsArray;
 
-        SplitMaterialsArray.Add(UKismetMaterialLibrary::CreateDynamicMaterialInstance(World, LoadObject<UMaterialInterface>(nullptr, TEXT("/MaskTools/MM/MM_TextureSplitter_R"))));
-        SplitMaterialsArray.Add(UKismetMaterialLibrary::CreateDynamicMaterialInstance(World, LoadObject<UMaterialInterface>(nullptr, TEXT("/MaskTools/MM/MM_TextureSplitter_G"))));
-        SplitMaterialsArray.Add(UKismetMaterialLibrary::CreateDynamicMaterialInstance(World, LoadObject<UMaterialInterface>(nullptr, TEXT("/MaskTools/MM/MM_TextureSplitter_B"))));
-        SplitMaterialsArray.Add(UKismetMaterialLibrary::CreateDynamicMaterialInstance(World, LoadObject<UMaterialInterface>(nullptr, TEXT("/MaskTools/MM/MM_TextureSplitter_A"))));
+        SplitMaterialsArray.Add(UKismetMaterialLibrary::CreateDynamicMaterialInstance(World, LoadObject<UMaterialInterface>(nullptr, TEXT("/MaskTools/MM/MM_TextureSplitter_R")),FName("Red"), EMIDCreationFlags::Transient));
+        SplitMaterialsArray.Add(UKismetMaterialLibrary::CreateDynamicMaterialInstance(World, LoadObject<UMaterialInterface>(nullptr, TEXT("/MaskTools/MM/MM_TextureSplitter_G")),FName("Green"), EMIDCreationFlags::Transient));
+        SplitMaterialsArray.Add(UKismetMaterialLibrary::CreateDynamicMaterialInstance(World, LoadObject<UMaterialInterface>(nullptr, TEXT("/MaskTools/MM/MM_TextureSplitter_B")),FName("Blue"), EMIDCreationFlags::Transient));
+        SplitMaterialsArray.Add(UKismetMaterialLibrary::CreateDynamicMaterialInstance(World, LoadObject<UMaterialInterface>(nullptr, TEXT("/MaskTools/MM/MM_TextureSplitter_A")),FName("Alpha"), EMIDCreationFlags::Transient));
 
-        int32 TexResX = Texture->GetSizeX();
-        int32 TexResY = Texture->GetSizeY();
+
+        int32 TexResX = Texture->GetImportedSize().X;
+        int32 TexResY = Texture->GetImportedSize().Y;
 
         int i = 0;
         for (UMaterialInstanceDynamic* Material : SplitMaterialsArray)
         {
-
             Material->SetTextureParameterValue(TEXT("Texture"), Texture);
 
-            const FString PackageName = TEXT("/Game/AAA/Texture");
+            const FString PackageName = FString::Printf(TEXT("%s%s"), *Texture->GetPathName(), *SuffixArray[i]);
 
-            UTextureRenderTarget2D* tempRT = UKismetRenderingLibrary::CreateRenderTarget2D(World, TexResX, TexResY);
+            UTextureRenderTarget2D* tempRT = UKismetRenderingLibrary::CreateRenderTarget2D(World, TexResX, TexResY, RTF_R16f);
             UKismetRenderingLibrary::DrawMaterialToRenderTarget(World, tempRT , Material);
 
             UTexture2D* ExportedTexture = UKismetRenderingLibrary::RenderTargetCreateStaticTexture2DEditorOnly(
                 tempRT,
                 PackageName,
-                TextureCompressionSettings::TC_Masks,
+                TextureCompressionSettings::TC_Grayscale,
                 TextureMipGenSettings::TMGS_NoMipmaps);
 
             i++;
