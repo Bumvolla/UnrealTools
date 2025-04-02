@@ -7,3 +7,6 @@
 [submodule "Plugins/UE_Audio2Face"]
 	path = Plugins/UE_Audio2Face
 	url = https://github.com/Bumvolla/UE_Audio2Face.git
+[submodule "Plugins/MaskTools"]
+	path = Plugins/MaskTools
+	url = https://github.com/Bumvolla/MaskTools.git

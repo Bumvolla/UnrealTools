@@ -14,7 +14,6 @@
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
 	"Installed": false,
-
 	"Modules": [
 		{
 			"Name": "UnrealToolsPlugin",
@@ -22,15 +21,14 @@
 			"LoadingPhase": "Default"
 		}
 	],
-
-		"Plugins": [
-			{
-				"Name": "EditorScriptingUtilities",
-				"Enabled": true
-			},
-			{
-				"Name": "Niagara",
-				"Enabled": true
-			}
-		]
+	"Plugins": [
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		}
+	]
 }
